@@ -8,19 +8,77 @@
   <link rel="icon" type="image/png" href="https://drive.google.com/thumbnail?id=1FnpwQe6kxkKXXDtwhdjqCQrjUX98Cu-f&sz=w192">
   <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
-    :root{--roxo:#57327d;--escuro:#372047;--amarelo:#f4d35e;--fundo:#f7f5fa;--verde:#d6f1df;--vermelho:#ffe0e0;--borda:#e7e0ed}
-    *{box-sizing:border-box} body{margin:0;background:var(--fundo);color:#292331;font:15px Arial,sans-serif;-webkit-tap-highlight-color:transparent}
-    header{background:#fff;border-bottom:4px solid var(--amarelo);text-align:center;padding:8px 12px} header img{width:150px;max-width:45vw;height:auto;display:block;margin:auto}
+    :root{
+      --roxo:#57327d;--escuro:#372047;--amarelo:#f4d35e;--fundo:#f7f5fa;
+      --verde:#dff6e7;--verde-forte:#228b4d;--vermelho:#ffe6e6;--vermelho-forte:#c63f3f;
+      --aviso:#fff5ce;--aviso-forte:#bb7b00;--borda:#e7e0ed
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--fundo);color:#292331;font:15px Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+    header{background:#fff;border-bottom:4px solid var(--amarelo);text-align:center;padding:7px 12px}
+    header img{width:142px;max-width:42vw;height:auto;display:block;margin:auto}
     header div{font-size:11px;font-weight:bold;letter-spacing:1.4px;color:var(--roxo);text-transform:uppercase;margin-top:2px}
-    main{width:min(100%,560px);margin:auto;padding:12px}.card{background:#fff;border:1px solid var(--borda);border-radius:16px;padding:14px;margin-bottom:11px;box-shadow:0 5px 18px rgba(55,32,71,.05)}
-    h1{font-size:21px;color:var(--escuro);margin:0 0 4px}.muted{color:#756c7d;font-size:12px}.reader{overflow:hidden;border-radius:14px;background:#111;min-height:310px}.reader video{object-fit:cover}
-    button,input{width:100%;border-radius:10px;font:inherit;padding:13px}input{border:1px solid #dcd5e5;margin:7px 0 10px;background:#fff}button{border:0;background:var(--roxo);color:#fff;font-weight:bold;cursor:pointer;touch-action:manipulation}button:active{transform:scale(.98)}
-    .secondary{background:#eee8f4;color:var(--roxo)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.resultado{display:none;border-left:6px solid var(--roxo)}.resultado.ok{display:block;background:#f0fff4;border-left-color:#38a169}.resultado.aviso{display:block;background:#fff9df;border-left-color:#d69e2e}.resultado.erro{display:block;background:#fff2f2;border-left-color:#d64545}.nome{font-size:20px;font-weight:bold;margin-bottom:5px}.status{font-weight:bold}.pequeno{font-size:12px;color:#756c7d;margin-top:5px}
-    #abrirCamera{display:none;margin-top:9px}.top-status{display:flex;align-items:center;justify-content:space-between;gap:8px}.bolinha{width:10px;height:10px;border-radius:50%;background:#aaa;display:inline-block;margin-right:6px}.bolinha.on{background:#38a169}.bolinha.busy{background:#d69e2e}
-    @media(max-width:420px){main{padding:8px}.card{padding:11px}.reader{min-height:280px}}
+    main{width:min(100%,560px);margin:auto;padding:10px}
+    .card{background:#fff;border:1px solid var(--borda);border-radius:16px;padding:13px;margin-bottom:10px;box-shadow:0 5px 18px rgba(55,32,71,.05)}
+    h1{font-size:21px;color:var(--escuro);margin:0 0 4px}
+    .muted{color:#756c7d;font-size:12px}
+    .reader{overflow:hidden;border-radius:14px;background:#111;min-height:310px;position:relative}
+    .reader video{object-fit:cover}
+    button,input{width:100%;border-radius:10px;font:inherit;padding:13px}
+    input{border:1px solid #dcd5e5;margin:7px 0 10px;background:#fff}
+    button{border:0;background:var(--roxo);color:#fff;font-weight:bold;cursor:pointer;touch-action:manipulation}
+    button:active{transform:scale(.98)}
+    .secondary{background:#eee8f4;color:var(--roxo)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .resultado{display:none;border-left:6px solid var(--roxo)}
+    .resultado.ok{display:block;background:#f0fff4;border-left-color:#38a169}
+    .resultado.aviso{display:block;background:#fff9df;border-left-color:#d69e2e}
+    .resultado.erro{display:block;background:#fff2f2;border-left-color:#d64545}
+    .nome{font-size:20px;font-weight:bold;margin-bottom:5px}
+    .status{font-weight:bold}
+    .pequeno{font-size:12px;color:#756c7d;margin-top:5px}
+    #abrirCamera{display:none;margin-top:9px}
+    .top-status{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .bolinha{width:10px;height:10px;border-radius:50%;background:#aaa;display:inline-block;margin-right:6px}
+    .bolinha.on{background:#38a169}.bolinha.busy{background:#d69e2e}
+
+    /* Popup fixo: sempre aparece por cima da câmera, sem precisar rolar. */
+    #popup{
+      position:fixed;z-index:9999;left:12px;right:12px;top:max(12px,env(safe-area-inset-top));
+      max-width:520px;margin:auto;border-radius:18px;padding:16px 18px;
+      box-shadow:0 14px 40px rgba(0,0,0,.28);transform:translateY(-130%);opacity:0;
+      transition:transform .18s ease,opacity .18s ease;pointer-events:none
+    }
+    #popup.visivel{transform:translateY(0);opacity:1}
+    #popup.ok{background:var(--verde);border:2px solid var(--verde-forte);color:#154d2d}
+    #popup.aviso{background:var(--aviso);border:2px solid var(--aviso-forte);color:#6c4a00}
+    #popup.erro{background:var(--vermelho);border:2px solid var(--vermelho-forte);color:#731f1f}
+    #popup .titulo{font-size:13px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px}
+    #popup .pessoa{font-size:24px;font-weight:900;line-height:1.08}
+    #popup .detalhe{font-size:13px;font-weight:700;margin-top:5px}
+
+    #filaStatus{
+      position:fixed;z-index:9998;right:10px;bottom:max(10px,env(safe-area-inset-bottom));
+      background:rgba(55,32,71,.93);color:#fff;border-radius:999px;padding:8px 11px;font-size:12px;
+      font-weight:bold;box-shadow:0 5px 18px rgba(0,0,0,.2);display:none
+    }
+    #filaStatus.on{display:block}
+
+    @media(max-width:420px){
+      main{padding:7px}.card{padding:10px}.reader{min-height:285px}
+      #popup{left:8px;right:8px}.reader{border-radius:12px}
+    }
   </style>
 </head>
 <body>
+<div id="popup" role="status" aria-live="assertive">
+  <div id="popupTitulo" class="titulo"></div>
+  <div id="popupPessoa" class="pessoa"></div>
+  <div id="popupDetalhe" class="detalhe"></div>
+</div>
+<div id="filaStatus"></div>
+
 <header>
   <img src="https://drive.google.com/thumbnail?id=1FnpwQe6kxkKXXDtwhdjqCQrjUX98Cu-f&sz=w600" alt="Projeto RAFAH">
   <div>Leitor rápido de ingressos</div>
@@ -49,63 +107,234 @@
 <script>
   const API='https://script.google.com/macros/s/AKfycbz8ZlQNGXwGNX6ReZ2gYNR-DeGKrr9OAXKry4cF5A1B0U4txDhXtvHJqx8WZjWHWgjX/exec';
   const $=id=>document.getElementById(id);
-  let leitor=null, iniciado=false, enviando=false, ultimoValor='', ultimoEm=0;
   const params=new URLSearchParams(location.search);
+
+  let leitor=null, iniciado=false;
+  let ativos=0;
+  const MAX_ATIVOS=4;
+  const fila=[];
+  const emVoo=new Set();
+  const recentes=new Map();
+  const registradosLocal=new Map();
+  let popupTimer=null;
+  let warmupTimer=null;
+
   $('turma').value=params.get('turma')||'18-10-2026';
 
-  function setCamera(texto,classe=''){$('estadoCamera').textContent=texto;$('bolinha').className='bolinha '+classe;}
+  function setCamera(texto,classe=''){
+    $('estadoCamera').textContent=texto;
+    $('bolinha').className='bolinha '+classe;
+  }
+
+  function esc(v){
+    return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
   function mostrar(tipo,titulo,mensagem,extra=''){
-    const el=$('resultado');el.className='card resultado '+tipo;
+    const el=$('resultado');
+    el.className='card resultado '+tipo;
     el.innerHTML=`<div class="nome">${esc(titulo)}</div><div class="status">${esc(mensagem)}</div>${extra?`<div class="pequeno">${esc(extra)}</div>`:''}`;
   }
-  function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+
+  function popup(tipo,titulo,pessoa,detalhe,duracao=1800){
+    const el=$('popup');
+    $('popupTitulo').textContent=titulo||'';
+    $('popupPessoa').textContent=pessoa||'';
+    $('popupDetalhe').textContent=detalhe||'';
+    el.className=tipo+' visivel';
+    clearTimeout(popupTimer);
+    popupTimer=setTimeout(()=>{ el.classList.remove('visivel'); },duracao);
+  }
+
+  function atualizarFila(){
+    const n=ativos+fila.length;
+    const el=$('filaStatus');
+    if(n>0){el.textContent=n===1?'Validando 1 leitura…':`Validando ${n} leituras…`;el.className='on';}
+    else el.className='';
+  }
+
   function interpretar(valor){
     const raw=String(valor||'').trim();
-    if(raw.startsWith('RAFAH|')){const p=raw.split('|');if(p.length===3)return{turma:p[1],valor:raw,codigo:p[2]};}
+    if(raw.startsWith('RAFAH|')){
+      const p=raw.split('|');
+      if(p.length===3)return{turma:p[1],valor:raw,codigo:p[2]};
+    }
     return{turma:$('turma').value.trim(),valor:raw,codigo:raw};
   }
-  function bip(ok=true){try{navigator.vibrate?.(ok?[80]:[100,60,100]);const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const c=new C(),o=c.createOscillator(),g=c.createGain();o.frequency.value=ok?880:250;g.gain.value=.05;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.09);}catch(e){}}
+
+  function chaveLeitura(valor){
+    const d=interpretar(valor);
+    return `${d.turma}|${String(d.codigo||d.valor).trim().toUpperCase()}`;
+  }
+
+  function bip(tipo='ok'){
+    try{
+      if(tipo==='ok') navigator.vibrate?.(70);
+      else if(tipo==='aviso') navigator.vibrate?.([55,45,55]);
+      else navigator.vibrate?.([100,55,100]);
+      const C=window.AudioContext||window.webkitAudioContext;
+      if(!C)return;
+      const c=new C(),o=c.createOscillator(),g=c.createGain();
+      o.frequency.value=tipo==='ok'?940:(tipo==='aviso'?620:260);
+      g.gain.value=.045;o.connect(g);g.connect(c.destination);o.start();
+      if(tipo==='aviso'){
+        o.frequency.setValueAtTime(620,c.currentTime);
+        o.frequency.setValueAtTime(760,c.currentTime+.08);
+        o.stop(c.currentTime+.15);
+      }else o.stop(c.currentTime+.09);
+    }catch(e){}
+  }
+
   async function iniciarCamera(){
     if(iniciado)return;
-    if(typeof Html5Qrcode==='undefined'){mostrar('erro','Leitor indisponível','Não foi possível carregar o leitor de QR.');return;}
+    if(typeof Html5Qrcode==='undefined'){
+      mostrar('erro','Leitor indisponível','Não foi possível carregar o leitor de QR.');
+      popup('erro','LEITOR INDISPONÍVEL','Câmera não iniciada','Recarregue a página.');
+      return;
+    }
     $('abrirCamera').style.display='none';setCamera('abrindo','busy');
     try{
       leitor=leitor||new Html5Qrcode('reader',false);
-      await leitor.start({facingMode:'environment'},{fps:12,qrbox:(vw,vh)=>{const s=Math.floor(Math.min(vw,vh)*.72);return{width:s,height:s}},aspectRatio:1.333333},onScan,()=>{});
+      await leitor.start(
+        {facingMode:'environment'},
+        {fps:18,qrbox:(vw,vh)=>{const s=Math.floor(Math.min(vw,vh)*.74);return{width:s,height:s}},aspectRatio:1.333333},
+        onScan,()=>{}
+      );
       iniciado=true;setCamera('câmera ativa','on');
     }catch(e){
       iniciado=false;setCamera('toque para abrir');$('abrirCamera').style.display='block';
       mostrar('aviso','Câmera não abriu','Toque em “Abrir câmera” e permita o acesso à câmera.');
+      popup('aviso','CÂMERA BLOQUEADA','Toque em “Abrir câmera”','Permita o acesso à câmera.');
     }
   }
+
   function onScan(valor){
-    const agora=Date.now();if(enviando||(valor===ultimoValor&&agora-ultimoEm<2500))return;
-    ultimoValor=valor;ultimoEm=agora;enviar(valor);
+    const agora=Date.now();
+    const chave=chaveLeitura(valor);
+
+    // Se este aparelho acabou de confirmar o mesmo ingresso, responde instantaneamente.
+    if(registradosLocal.has(chave)){
+      const ultima=recentes.get(chave)||0;
+      if(agora-ultima<3500)return;
+      recentes.set(chave,agora);
+      const r=registradosLocal.get(chave);
+      bip('aviso');
+      popup('aviso','JÁ REGISTRADO',r.nome,'Presença já confirmada neste aparelho.',1500);
+      mostrar('aviso',r.nome,'Presença já registrada.',r.presenca||'');
+      return;
+    }
+
+    if(emVoo.has(chave))return;
+    const ultima=recentes.get(chave)||0;
+    if(agora-ultima<2200)return;
+    recentes.set(chave,agora);
+    enfileirar(valor,false);
   }
-  function checkinManual(){const valor=$('codigo').value.trim();if(!valor){mostrar('erro','Código ausente','Digite o código do ingresso.');return;}enviar(valor);}
-  function enviar(valor){
-    if(enviando)return;const d=interpretar(valor);
-    if(!/^\d{2}-\d{2}-\d{4}$/.test(d.turma)){mostrar('erro','Turma inválida','Informe a turma no formato DD-MM-AAAA.');return;}
-    if(!d.valor){mostrar('erro','Código ausente','Leia ou digite o código do ingresso.');return;}
-    enviando=true;setCamera('registrando','busy');try{if(iniciado)leitor.pause(true);}catch(e){}
-    $('turma').value=d.turma;mostrar('aviso','Aguarde','Registrando presença...');
-    jsonp(d.valor,d.turma).then(res=>{
+
+  function checkinManual(){
+    const valor=$('codigo').value.trim();
+    if(!valor){
+      mostrar('erro','Código ausente','Digite o código do ingresso.');
+      popup('erro','CÓDIGO AUSENTE','Nada foi registrado','Digite o código impresso no ingresso.');
+      return;
+    }
+    enfileirar(valor,true);
+  }
+
+  function enfileirar(valor,manual){
+    const d=interpretar(valor);
+    if(!/^\d{2}-\d{2}-\d{4}$/.test(d.turma)){
+      mostrar('erro','Turma inválida','Informe a turma no formato DD-MM-AAAA.');
+      popup('erro','TURMA INVÁLIDA','Nada foi registrado','Use DD-MM-AAAA.');
+      return;
+    }
+    if(!d.valor)return;
+    const chave=chaveLeitura(valor);
+    if(emVoo.has(chave)||fila.some(x=>x.chave===chave))return;
+    fila.push({valor,d,manual,chave});
+    processarFila();
+  }
+
+  function processarFila(){
+    while(ativos<MAX_ATIVOS && fila.length){
+      const item=fila.shift();
+      executarCheckin(item);
+    }
+    atualizarFila();
+  }
+
+  function executarCheckin(item){
+    ativos++;
+    emVoo.add(item.chave);
+    atualizarFila();
+    $('turma').value=item.d.turma;
+    setCamera('câmera ativa','on');
+
+    // A câmera NÃO é pausada: a fila continua andando mesmo enquanto o servidor confirma.
+    jsonp('checkin',item.d.valor,item.d.turma).then(res=>{
       if(!res.ok)throw new Error(res.erro||'Não foi possível registrar.');
-      const r=res.resultado;$('codigo').value='';bip(true);
-      mostrar(r.jaRegistrado?'aviso':'ok',r.nome,r.mensagem,r.presenca||'');
-    }).catch(e=>{bip(false);mostrar('erro','Não registrado',e.message||String(e));})
-      .finally(()=>{enviando=false;setTimeout(()=>{try{if(iniciado)leitor.resume();setCamera('câmera ativa','on');}catch(e){setCamera('toque para abrir');$('abrirCamera').style.display='block';}},850);});
+      const r=res.resultado;
+      registradosLocal.set(item.chave,{nome:r.nome,presenca:r.presenca||''});
+      if(item.manual)$('codigo').value='';
+
+      if(r.jaRegistrado){
+        bip('aviso');
+        popup('aviso','JÁ REGISTRADO',r.nome,r.presenca?`Registrado em ${r.presenca}`:'Presença já registrada.',1750);
+        mostrar('aviso',r.nome,r.mensagem,r.presenca||'');
+      }else{
+        bip('ok');
+        popup('ok','ENTRADA REGISTRADA',r.nome,r.presenca||'',1600);
+        mostrar('ok',r.nome,r.mensagem,r.presenca||'');
+      }
+    }).catch(e=>{
+      bip('erro');
+      popup('erro','NÃO REGISTRADO','Confira este ingresso',e.message||String(e),2300);
+      mostrar('erro','Não registrado',e.message||String(e));
+    }).finally(()=>{
+      ativos--;
+      emVoo.delete(item.chave);
+      processarFila();
+    });
   }
-  function jsonp(valor,turma){return new Promise((resolve,reject)=>{
-    const cb='rafahCb_'+Date.now()+'_'+Math.floor(Math.random()*100000);const script=document.createElement('script');let acabou=false;
-    const limpar=()=>{delete window[cb];script.remove();};
-    window[cb]=r=>{if(acabou)return;acabou=true;clearTimeout(timer);limpar();resolve(r);};
-    script.onerror=()=>{if(acabou)return;acabou=true;clearTimeout(timer);limpar();reject(new Error('Não foi possível acessar o sistema RAFAH.'));};
-    script.src=API+'?api=checkin&callback='+encodeURIComponent(cb)+'&turma='+encodeURIComponent(turma)+'&valor='+encodeURIComponent(valor)+'&_='+Date.now();
-    document.head.appendChild(script);
-    const timer=setTimeout(()=>{if(acabou)return;acabou=true;limpar();reject(new Error('O sistema demorou para responder. Tente novamente.'));},12000);
-  });}
-  window.addEventListener('load',()=>setTimeout(iniciarCamera,120));
+
+  function jsonp(api,valor,turma){
+    return new Promise((resolve,reject)=>{
+      const cb='rafahCb_'+Date.now()+'_'+Math.floor(Math.random()*100000);
+      const script=document.createElement('script');
+      let acabou=false;
+      const limpar=()=>{delete window[cb];script.remove();};
+      window[cb]=r=>{if(acabou)return;acabou=true;clearTimeout(timer);limpar();resolve(r);};
+      script.onerror=()=>{if(acabou)return;acabou=true;clearTimeout(timer);limpar();reject(new Error('Não foi possível acessar o sistema RAFAH.'));};
+      let src=API+'?api='+encodeURIComponent(api)+'&callback='+encodeURIComponent(cb)+'&turma='+encodeURIComponent(turma)+'&_='+Date.now();
+      if(valor)src+='&valor='+encodeURIComponent(valor);
+      script.src=src;
+      document.head.appendChild(script);
+      const timer=setTimeout(()=>{if(acabou)return;acabou=true;limpar();reject(new Error('O sistema demorou para responder. Tente novamente.'));},10000);
+    });
+  }
+
+  function aquecerServidor(){
+    clearTimeout(warmupTimer);
+    const turma=$('turma').value.trim();
+    if(!/^\d{2}-\d{2}-\d{4}$/.test(turma))return;
+    setCamera(iniciado?'câmera ativa':'preparando',iniciado?'on':'busy');
+    jsonp('warmup','',turma).catch(()=>{}).finally(()=>{
+      if(iniciado)setCamera('câmera ativa','on');
+    });
+  }
+
+  $('turma').addEventListener('input',()=>{
+    clearTimeout(warmupTimer);
+    warmupTimer=setTimeout(aquecerServidor,500);
+  });
+
+  window.addEventListener('load',()=>{
+    // Faz o aquecimento em paralelo com a abertura da câmera para que o primeiro check-in
+    // não tenha que pagar todo o custo de inicialização do Apps Script/planilha.
+    setTimeout(aquecerServidor,40);
+    setTimeout(iniciarCamera,90);
+  });
 </script>
 </body>
 </html>
