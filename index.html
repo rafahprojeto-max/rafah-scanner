@@ -1,413 +1,833 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#57327d">
+  <meta name="application-name" content="RAFAH">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="RAFAH Scanner">
-  <title>RAFAH | Scanner</title>
-  <link rel="icon" type="image/png" href="https://drive.google.com/thumbnail?id=1FnpwQe6kxkKXXDtwhdjqCQrjUX98Cu-f&sz=w192">
-  <link rel="shortcut icon" type="image/png" href="https://drive.google.com/thumbnail?id=1FnpwQe6kxkKXXDtwhdjqCQrjUX98Cu-f&sz=w192">
-  <link rel="apple-touch-icon" href="https://drive.google.com/thumbnail?id=1FnpwQe6kxkKXXDtwhdjqCQrjUX98Cu-f&sz=w512">
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <meta name="apple-mobile-web-app-title" content="RAFAH">
+  <title>RAFAH | Gestão de Capacitações</title>
+  <link rel="icon" href="<?!= logoDataUrl ?>">
+  <link rel="shortcut icon" href="<?!= logoDataUrl ?>">
+  <link rel="apple-touch-icon" href="<?!= logoDataUrl ?>">
+  <link rel="manifest" href="?asset=manifest">
   <style>
     :root{
-      --roxo:#57327d;--roxo2:#372047;--amarelo:#f4d35e;--fundo:#f7f5fa;--borda:#e7e0ed;
-      --verde:#dff5e7;--verde2:#2d9b5b;--aviso:#fff1bf;--aviso2:#d7a900;--erro:#ffe0e0;--erro2:#d74444;
-      --texto:#292331;--muted:#736a7b;--lido:#f1eaf7;--lido2:#8056a7
+      --roxo:#57327d;--roxo2:#372047;--claro:#f1eaf7;--amarelo:#f4d35e;
+      --fundo:#f7f5fa;--borda:#e7e0ed;--verde:#d9f3e2;--verde2:#2d8a50;
+      --vermelho:#ffe2e2;--texto:#292331;--muted:#736a7b;--aviso:#fff2bf;
+      --sombra:0 8px 24px rgba(55,32,71,.08)
     }
-    *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--fundo);color:var(--texto);font:14px Arial,sans-serif;-webkit-tap-highlight-color:transparent}
-    button,input{font:inherit}button{border:0;border-radius:11px;background:var(--roxo);color:#fff;font-weight:800;padding:12px 14px;cursor:pointer;touch-action:manipulation}button:active{transform:scale(.985)}
-    header{background:#fff;border-bottom:3px solid var(--amarelo);text-align:center;padding:8px 12px 10px}header img{display:block;width:min(210px,70vw);height:auto;margin:auto}header div{margin-top:3px;color:var(--roxo2);font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase}
-    main{max-width:650px;margin:auto;padding:10px}.card{background:#fff;border:1px solid var(--borda);border-radius:17px;padding:12px;margin-bottom:10px;box-shadow:0 2px 12px rgba(55,32,71,.05)}
-    .topo{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.topo h1{margin:0;color:var(--roxo2);font-size:24px}.muted{color:var(--muted);font-size:12px;line-height:1.35;margin-top:4px}
-    .estado{display:flex;align-items:center;gap:6px;border-radius:18px;background:#f3eef8;padding:7px 9px;color:var(--roxo);font-size:11px;font-weight:800;white-space:nowrap}.dot{width:8px;height:8px;border-radius:50%;background:#999}.dot.on{background:var(--verde2)}.dot.busy{background:var(--aviso2)}.dot.off{background:var(--erro2)}
-    .reader{position:relative;overflow:hidden;background:#161119;border-radius:15px;min-height:320px;margin-top:12px;display:flex;align-items:center;justify-content:center}.reader video{width:100%;height:100%;min-height:320px;object-fit:cover;display:none}.reader.native video{display:block}.mira{pointer-events:none;position:absolute;left:50%;top:50%;width:min(68vw,310px);height:min(68vw,310px);transform:translate(-50%,-50%);border:3px solid rgba(255,255,255,.86);border-radius:20px;box-shadow:0 0 0 9999px rgba(0,0,0,.15);display:none}.reader.native .mira{display:block}
-    #readerFallback{width:100%}#readerFallback video{min-height:320px;object-fit:cover}.camera-msg{color:#fff;text-align:center;padding:25px;font-weight:700}.camera-msg small{display:block;font-weight:400;opacity:.75;margin-top:7px}
-    #abrirCamera{width:100%;margin-top:10px;display:none}.linha-status{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:10px}.pill{border-radius:18px;padding:7px 9px;background:#f3eef8;color:var(--roxo);font-size:11px;font-weight:800}.pill.offline{background:var(--aviso);color:#6f4c00}.pill.ok{background:var(--verde);color:#15502d}
-    .sync{display:none;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;border-radius:12px;padding:10px 11px;background:#f3eef8;color:var(--roxo2);font-size:12px;font-weight:800}.sync.on{display:flex}.sync.offline{background:var(--aviso);color:#6f4c00}.spinner{width:15px;height:15px;border:2px solid rgba(87,50,125,.22);border-top-color:var(--roxo);border-radius:50%;animation:girar .8s linear infinite;flex:0 0 auto}@keyframes girar{to{transform:rotate(360deg)}}
-    .manual-grid{display:grid;grid-template-columns:1fr;gap:7px}.manual-grid label{font-weight:800;font-size:12px}.manual-grid input{width:100%;border:1px solid #dcd5e5;border-radius:10px;padding:11px;color:var(--texto)}.manual-grid input:focus{outline:2px solid #eee6f5;border-color:var(--roxo)}
-    .historico{display:grid;gap:6px}.hist-vazio{color:var(--muted);font-size:12px}.hist{display:grid;grid-template-columns:9px 1fr auto;gap:9px;align-items:start;padding:9px 0;border-bottom:1px solid #eee9f2}.hist:last-child{border-bottom:0}.bol{width:9px;height:9px;border-radius:50%;margin-top:5px;background:#8e8494}.hist.ok .bol{background:var(--verde2)}.hist.aviso .bol{background:var(--aviso2)}.hist.erro .bol{background:var(--erro2)}.hist.pendente .bol{background:var(--roxo)}.hist .nome{font-weight:850;line-height:1.2}.hist .det{margin-top:2px;color:var(--muted);font-size:11px}.hist .hora{color:var(--muted);font-size:10px;white-space:nowrap}
-    .rodape{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:10px;margin-top:8px}
-    .popup{position:fixed;z-index:20000;inset:0;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(24,15,31,.38);pointer-events:none}.popup.on{display:flex}.popup-card{width:min(94vw,520px);border-radius:22px;padding:25px 20px;text-align:center;border:3px solid;box-shadow:0 20px 60px rgba(0,0,0,.32);animation:pop .12s ease-out}.popup.ok .popup-card{background:#f0fff4;border-color:var(--verde2);color:#14512d}.popup.aviso .popup-card{background:#fff8d8;border-color:var(--aviso2);color:#684900}.popup.erro .popup-card{background:#fff0f0;border-color:var(--erro2);color:#741f1f}.popup.lido .popup-card{background:#faf6ff;border-color:var(--lido2);color:#3c2452}.popup .titulo{font-size:14px;font-weight:950;letter-spacing:1px;text-transform:uppercase}.popup .nome{font-size:30px;font-weight:950;line-height:1.05;margin-top:8px;overflow-wrap:anywhere}.popup .det{font-size:14px;font-weight:750;margin-top:9px;line-height:1.3}@keyframes pop{from{transform:scale(.94);opacity:.5}to{transform:scale(1);opacity:1}}
-    @media(max-width:420px){main{padding:7px}.card{padding:10px}.reader,.reader video,#readerFallback video{min-height:285px}.popup .nome{font-size:26px}.topo h1{font-size:22px}}
-    @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--fundo);color:var(--texto);font:14px Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+    button,input,select,textarea{font:inherit}.hidden{display:none!important}.busy{cursor:progress}.busy button{pointer-events:none}
+    .cabecalho{background:#fff;border-bottom:3px solid var(--amarelo);text-align:center}
+    .marca{max-width:980px;margin:auto;padding:10px 12px 12px}
+    .logo{display:block;width:min(100%,245px);height:auto;margin:auto}
+    .subtitulo{margin-top:5px;color:var(--roxo2);font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase}
+    .menu{position:sticky;top:0;z-index:30;background:var(--roxo);padding:7px;box-shadow:0 4px 14px rgba(55,32,71,.15)}
+    .menu-inner{max-width:980px;margin:auto;display:flex;gap:6px}.menu button{flex:1;border:0;border-radius:9px;padding:11px 5px;background:transparent;color:#fff;font-size:12px;font-weight:700}.menu button.ativo{background:#fff;color:var(--roxo)}
+    main{max-width:980px;margin:auto;padding:12px}
+    .card{background:#fff;border:1px solid var(--borda);border-radius:14px;padding:15px;margin-bottom:12px;box-shadow:0 1px 0 rgba(0,0,0,.02)}
+    .card.suave{box-shadow:none}.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.grow{flex:1;min-width:0}
+    .muted{color:var(--muted);font-size:12px}.nome{font-size:16px;font-weight:800;overflow-wrap:anywhere}.telefone{color:#675f6e;margin-top:5px}
+    .coordenador{border-left:4px solid var(--amarelo)}.coordenador strong{color:var(--roxo);font-size:16px}
+    h2,h3{color:var(--roxo2);margin-top:0}label{display:block;font-weight:700;margin:0 0 6px}
+    input,select,textarea{width:100%;border:1px solid #dcd5e5;border-radius:10px;padding:11px;background:#fff;color:var(--texto);margin-bottom:11px}
+    input:focus,select:focus,textarea:focus{outline:2px solid var(--claro);border-color:var(--roxo)}textarea{min-height:135px;resize:vertical}
+    button{border:0;border-radius:10px;padding:11px;background:var(--roxo);color:#fff;font-weight:700;cursor:pointer;touch-action:manipulation;transition:transform .1s ease,filter .1s ease}
+    button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cursor:default}.secondary{background:var(--claro);color:var(--roxo)}.green,.whatsapp{background:var(--verde);color:#185e35}.red{background:var(--vermelho);color:#922929}.small{padding:8px;font-size:12px}.full{width:100%}
+    .status{display:inline-block;margin-top:9px;padding:6px 10px;border-radius:20px;background:#fff1bf;font-size:12px}.status.aguardando{background:#e9e0f4;color:var(--roxo)}.status.confirmado{background:var(--verde);color:#205a34}.status.nao-vai{background:var(--vermelho);color:#912424}
+    .presenca{display:inline-block;margin:9px 0 0 6px;padding:6px 9px;border-radius:18px;background:var(--verde);color:#205a34;font-size:11px;font-weight:700}
+    .acoes{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.acoes button{flex:1;min-width:105px}
+    .entregas{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.tag{padding:5px 8px;border-radius:16px;background:#f0eef3;color:#655b6d;font-size:11px}.tag.ok{background:var(--verde);color:#205a34;font-weight:700}
+    .resumo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:12px 0}.indicador{min-height:68px;padding:10px 5px;background:var(--claro);color:var(--roxo);border:2px solid transparent;display:flex;flex-direction:column;justify-content:center;align-items:center}.indicador strong{font-size:20px}.indicador span{font-size:11px;margin-top:3px;text-align:center}.indicador.ativo{background:var(--roxo);color:#fff;border-color:var(--amarelo)}
+    .barra-lista{display:grid;grid-template-columns:1fr 190px auto;gap:8px;align-items:center}.barra-lista input,.barra-lista select{margin:0}
+    .syncbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:10px;background:#f1edf5;margin:8px 0 12px;color:var(--muted);font-size:11px}.syncbar.ok{background:#edf8f0;color:#376247}.syncbar.off{background:#fff2bf;color:#725300}.syncbar.err{background:#ffe2e2;color:#8c2a2a}
+    .rodape-lista{min-height:42px;text-align:center;padding:8px;color:var(--muted);font-size:12px}.sentinela{height:14px}
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid #d8cce2;border-top-color:var(--roxo);border-radius:50%;animation:girar .7s linear infinite;vertical-align:middle;margin-right:7px}@keyframes girar{to{transform:rotate(360deg)}}
+    .config-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.preview{border-bottom:1px solid var(--borda);padding:12px 0}
+    #toast{display:none;position:fixed;left:50%;top:max(10px,env(safe-area-inset-top));transform:translateX(-50%);z-index:100;width:min(calc(100% - 20px),720px);padding:12px 14px;border-radius:11px;background:#fff0c2;box-shadow:0 12px 34px rgba(0,0,0,.17);overflow-wrap:anywhere}#toast.erro{background:#ffdada}#toast.ok{background:#d9f3e2}
+    .inicio-status{text-align:center;color:var(--roxo);padding:28px 10px}
+    .scanner-box{position:relative;background:#17121b;border-radius:14px;overflow:hidden;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;margin:12px 0}.scanner-box video{width:100%;height:100%;object-fit:cover;display:none}.scanner-placeholder{color:#fff;text-align:center;padding:20px}.scan-overlay{position:absolute;left:8px;right:8px;top:8px;z-index:4;padding:11px;border-radius:12px;text-align:center;font-weight:800;display:none}.scan-overlay.ok{display:block;background:#d9f3e2;color:#185e35}.scan-overlay.warn{display:block;background:#fff2bf;color:#705000}.scan-overlay.err{display:block;background:#ffe2e2;color:#8f2626}.checkin-ok{border-left:5px solid #38a169;background:#f0fff4}
+    .modal{position:fixed;inset:0;z-index:60;background:rgba(26,16,34,.8);display:flex;align-items:center;justify-content:center;padding:12px}.modal-box{width:min(96vw,720px);max-height:95vh;overflow:auto;background:#fff;border-radius:16px;padding:14px}.modal-top{display:flex;gap:10px;align-items:center;justify-content:space-between}.ticket-preview{display:block;width:100%;height:auto;border:1px solid var(--borda);border-radius:11px}.modal-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.modal-actions button{flex:1;min-width:140px}#ticketCanvas{display:none}
+    .inscricao-opcao{border:1px solid var(--borda);border-radius:12px;padding:12px;margin:10px 0;background:#faf8fc}.inscricao-opcao strong{display:block;color:var(--roxo2);font-size:15px}.inscricao-opcao .meta{margin-top:5px;color:var(--muted);font-size:12px;overflow-wrap:anywhere}.inscricao-opcao button{width:100%;margin-top:10px}.aviso-inscricao{background:var(--aviso);border-radius:10px;padding:10px 12px;margin:10px 0;color:#684f00;font-size:12px}
+    @media(max-width:650px){.barra-lista{grid-template-columns:1fr}.resumo{grid-template-columns:repeat(2,minmax(0,1fr))}.config-grid{grid-template-columns:1fr}.menu-inner{gap:3px}.menu button{font-size:11px;padding:10px 3px}}
+    @media(max-width:420px){main{padding:9px}.card{padding:12px}.logo{width:min(100%,205px)}.acoes button{min-width:90px;padding:10px 6px;font-size:12px}}
+    @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
   </style>
 </head>
 <body>
-  <div id="popup" class="popup" aria-live="assertive">
-    <div class="popup-card"><div id="popupTitulo" class="titulo"></div><div id="popupNome" class="nome"></div><div id="popupDetalhe" class="det"></div></div>
-  </div>
-
-  <header>
-    <img src="https://drive.google.com/thumbnail?id=1FnpwQe6kxkKXXDtwhdjqCQrjUX98Cu-f&sz=w600" alt="Projeto RAFAH">
-    <div>Leitor rápido de ingressos</div>
+  <header class="cabecalho">
+    <div class="marca">
+      <img class="logo" src="<?!= logoDataUrl ?>" alt="Projeto RAFAH">
+      <div class="subtitulo">Gestão de capacitações</div>
+    </div>
   </header>
 
+  <nav id="menu" class="menu hidden">
+    <div class="menu-inner">
+      <button id="tab-contatos" onclick="abrirPainel('contatos')">Contatos</button>
+      <button id="tab-importar" onclick="abrirPainel('importar')">Importar</button>
+      <button id="tab-checkin" onclick="abrirPainel('checkin')">Check-in</button>
+      <button id="tab-opcoes" onclick="abrirPainel('opcoes')">Mais opções</button>
+    </div>
+  </nav>
+
   <main>
-    <section class="card">
-      <div class="topo">
-        <div><h1>Check-in</h1><div class="muted">A leitura é validada no aparelho. A planilha sincroniza depois.</div></div>
-        <div class="estado"><span id="cameraDot" class="dot busy"></span><span id="cameraTexto">iniciando</span></div>
-      </div>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <div id="inicio" class="inicio-status"><span class="spinner"></span>Abrindo painel...</div>
 
-      <div id="reader" class="reader">
-        <video id="video" playsinline muted></video>
-        <div class="mira"></div>
-        <div id="readerFallback"></div>
-        <div id="cameraMsg" class="camera-msg">Preparando leitor…<small>A primeira abertura baixa a lista da capacitação.</small></div>
-      </div>
-      <button id="abrirCamera" type="button">Abrir câmera</button>
-
-      <div class="linha-status">
-        <span id="baseStatus" class="pill">Base: carregando</span>
-        <span id="redeStatus" class="pill">Internet: verificando</span>
-      </div>
-      <div id="syncBox" class="sync"><span id="syncTexto">Sincronizando…</span><span class="spinner"></span></div>
+    <section id="falha" class="hidden">
+      <div class="card"><h3>Não foi possível abrir o painel</h3><p id="erroInicial" class="muted"></p><button class="full" onclick="iniciar(true)">Tentar novamente</button></div>
     </section>
 
-    <section class="card">
-      <h2 style="margin:0 0 9px;color:var(--roxo2)">Últimas leituras</h2>
-      <div id="historico" class="historico"><div class="hist-vazio">Nenhuma leitura ainda.</div></div>
+    <section id="identificacao" class="hidden">
+      <div class="card">
+        <h2>Bem-vindo ao RAFAH</h2>
+        <p>Informe seu nome. O sistema vai lembrar dele nos próximos acessos.</p>
+        <label for="nomeCoordenador">Nome do coordenador</label>
+        <input id="nomeCoordenador" maxlength="100" autocomplete="name" placeholder="Seu nome">
+        <button class="full" onclick="salvarNome()">Continuar</button>
+      </div>
     </section>
 
-    <section class="card">
-      <h2 style="margin:0 0 9px;color:var(--roxo2)">Código manual</h2>
-      <div class="manual-grid">
-        <label for="turma">Turma</label>
-        <input id="turma" placeholder="DD-MM-AAAA" inputmode="numeric" autocomplete="off">
-        <label for="codigo">Código do ingresso</label>
-        <input id="codigo" placeholder="Ex.: RAFABC123XYZ" autocomplete="off" autocapitalize="characters" spellcheck="false">
-        <button id="registrarManual" type="button">Registrar presença</button>
+    <section id="sistema" class="hidden">
+      <div class="card coordenador">
+        <div class="row"><div class="grow"><div class="muted">COORDENADOR</div><strong id="coordenadorAtual"></strong><div id="emailCoordenador" class="muted"></div></div><button class="secondary small" onclick="trocarCoordenador()">Alterar</button></div>
       </div>
-      <div class="rodape"><span id="motor">Motor: preparando</span><span>Scanner v6 local-first</span></div>
+
+      <div class="card suave">
+        <label for="capacitacao">Capacitação</label>
+        <select id="capacitacao" onchange="trocarTurma()"></select>
+        <div id="periodo" class="muted"></div>
+        <div id="syncBar" class="syncbar"><span id="syncTexto">Dados locais</span><button class="secondary small" onclick="atualizarAgora()">Sincronizar</button></div>
+      </div>
+
+      <section id="painel-contatos" class="hidden">
+        <div id="resumo" class="resumo"></div>
+        <div class="card suave">
+          <div class="barra-lista">
+            <input id="busca" type="search" placeholder="Buscar nome ou telefone" oninput="agendarBusca()">
+            <select id="filtro" onchange="mudarFiltro(this.value)">
+              <option value="pendentes">Pendentes</option>
+              <option value="aguardando">Aguardando confirmação</option>
+              <option value="confirmados">Confirmados</option>
+              <option value="ingresso-pendente">Ingresso pendente</option>
+              <option value="nao-vai">Não vão</option>
+              <option value="todos">Todos</option>
+            </select>
+            <button class="secondary small" onclick="atualizarAgora()">Atualizar</button>
+          </div>
+        </div>
+        <div id="listaContatos"></div>
+        <div id="rodapeLista" class="rodape-lista"></div>
+        <div id="sentinela" class="sentinela"></div>
+      </section>
+
+      <section id="painel-importar" class="hidden">
+        <div class="card">
+          <h3>Importar confirmados</h3>
+          <p class="muted">Cole um ou vários nomes e telefones. O sistema mostra uma prévia antes de inserir.</p>
+          <textarea id="textoImportacao" placeholder="João da Silva - (31) 99999-9999"></textarea>
+          <button class="full" onclick="analisarLista()">Analisar lista</button>
+        </div>
+        <div id="areaPrevia" class="card hidden"><h3>Prévia</h3><div id="previa"></div><div class="acoes"><button class="green" onclick="confirmarImportacao()">Inserir confirmados</button><button class="secondary" onclick="cancelarPrevia()">Cancelar</button></div></div>
+      </section>
+
+      <section id="painel-checkin" class="hidden">
+        <div class="card">
+          <h3>Check-in de apoio</h3>
+          <p class="muted">Este leitor também usa a base local. O leitor rápido separado continua sendo o ideal para o dia do evento.</p>
+          <div class="scanner-box">
+            <video id="videoScanner" playsinline muted></video>
+            <div id="scannerPlaceholder" class="scanner-placeholder">Toque em “Abrir câmera” ou digite o código abaixo.</div>
+            <div id="scanOverlay" class="scan-overlay"></div>
+          </div>
+          <div class="acoes"><button onclick="iniciarScanner()">Abrir câmera</button><button class="secondary" onclick="pararScanner()">Fechar câmera</button></div>
+          <label for="codigoCheckin">Código do ingresso</label>
+          <input id="codigoCheckin" placeholder="RAF..." autocomplete="off">
+          <button class="full" onclick="checkinManual()">Registrar presença</button>
+        </div>
+        <div id="resultadoCheckin"></div>
+      </section>
+
+      <section id="painel-opcoes" class="hidden">
+        <div class="card">
+          <h3>Dados da turma atual</h3>
+          <div class="config-grid">
+            <div><label>Nome do evento</label><input id="cfgNomeEvento"></div>
+            <div><label>Horário</label><input id="cfgHorario" placeholder="09h às 12h"></div>
+            <div><label>Local</label><input id="cfgLocal"></div>
+            <div><label>Cidade/UF</label><input id="cfgCidade"></div>
+          </div>
+          <label>Endereço</label><input id="cfgEndereco">
+          <label>Valor do ingresso</label><input id="cfgValor" inputmode="decimal">
+          <label>Mensagem do ingresso</label><textarea id="cfgMensagem"></textarea>
+          <button class="full" onclick="salvarConfigAtual()">Salvar dados da turma</button>
+        </div>
+
+        <div class="card">
+          <h3>Nova turma</h3>
+          <div class="config-grid">
+            <div><label>Data</label><input id="novaData" placeholder="DD-MM-AAAA" inputmode="numeric"></div>
+            <div><label>Valor</label><input id="novoValor" value="10,00" inputmode="decimal"></div>
+            <div><label>Nome do evento</label><input id="novoNomeEvento" value="Capacitação RAFAH"></div>
+            <div><label>Horário</label><input id="novoHorario" placeholder="09h às 12h"></div>
+            <div><label>Local</label><input id="novoLocal"></div>
+            <div><label>Cidade/UF</label><input id="novaCidade" value="Belo Horizonte, MG"></div>
+          </div>
+          <label>Endereço</label><input id="novoEndereco">
+          <label>Mensagem</label><textarea id="novaMensagem" placeholder="Mensagem do ingresso"></textarea>
+          <button class="full" onclick="criarTurma()">Criar nova turma</button>
+        </div>
+      </section>
     </section>
+
+    <div id="modalInscricao" class="modal hidden">
+      <div class="modal-box">
+        <div class="modal-top">
+          <div><div class="muted">CONFERÊNCIA DA INSCRIÇÃO</div><h3 style="margin:3px 0 0">Cadastro duplicado</h3></div>
+          <button class="secondary small" onclick="fecharModalInscricao()">Cancelar</button>
+        </div>
+        <div class="aviso-inscricao">Há mais de uma inscrição com o mesmo nome e telefone. Escolha qual cadastro deve fornecer o e-mail do ingresso.</div>
+        <div id="listaInscricoesDuplicadas"></div>
+      </div>
+    </div>
+
+    <div id="modalIngresso" class="modal hidden">
+      <div class="modal-box">
+        <div class="modal-top"><div><div class="muted">INGRESSO</div><h3 id="ticketNome" style="margin:3px 0 0"></h3></div><button class="secondary small" onclick="fecharIngresso()">Fechar</button></div>
+        <img id="ticketPreview" class="ticket-preview" alt="Prévia do ingresso">
+        <canvas id="ticketCanvas" width="1240" height="1754"></canvas>
+        <div id="ticketEntregaStatus" class="syncbar">Ingresso pronto.</div>
+        <div class="modal-actions">
+          <button class="whatsapp" onclick="enviarIngressoWhatsAppAtual()">Enviar pelo WhatsApp</button>
+          <button id="btnMarcarWhatsapp" class="secondary" onclick="marcarWhatsAppAtual()">Marcar WhatsApp enviado</button>
+          <button class="secondary" onclick="baixarIngresso()">Baixar imagem</button>
+        </div>
+        <p class="muted">No celular, “Enviar pelo WhatsApp” usa o compartilhamento do aparelho. No computador, abre a conversa e baixa a imagem para você anexar.</p>
+      </div>
+    </div>
   </main>
 
 <script>
 (function(){
   'use strict';
 
-  var API='https://script.google.com/macros/s/AKfycbz8ZlQNGXwGNX6ReZ2gYNR-DeGKrr9OAXKry4cF5A1B0U4txDhXtvHJqx8WZjWHWgjX/exec';
-  var DEFAULT_TURMA='18-10-2026';
-  var BASE_PREFIX='rafahScannerV6Base:';
-  var PENDING_KEY='rafahScannerV6Pendentes';
-  var HISTORY_KEY='rafahScannerV6Historico';
-  var MAX_ATIVOS=3;
-  var REQUEST_TIMEOUT=22000;
-  var HISTORY_LIMIT=14;
-  var RECENT_MS=1700;
-  var BASE_REFRESH_MS=3*60*1000;
+  var $=function(id){return document.getElementById(id);};
+  var CACHE_PREFIX='rafahPainelV61:';
+  var BOOT_KEY=CACHE_PREFIX+'bootstrap';
+  var LAST_KEY=CACHE_PREFIX+'ultimaTurma';
+  var RENDER_STEP=50;
 
-  var bases={};
-  var fila=[];
-  var ativos=0;
-  var historico=[];
-  var recentes={};
-  var popupTimer=null;
-  var scheduler=null;
-  var refreshTimer=null;
-  var audioCtx=null;
-  var wakeLock=null;
-  var cameraMode='';
-  var nativeStream=null;
-  var nativeDetector=null;
-  var nativeAtivo=false;
-  var nativeDetectando=false;
-  var html5Reader=null;
-  var html5Ativo=false;
+  var estado={
+    coordenador:null,capacitacoes:[],turma:'',periodo:null,configuracao:null,
+    todos:[],contagens:{pendentes:0,aguardando:0,confirmados:0,ingressoPendente:0,naoVai:0,todos:0},
+    filtro:'pendentes',busca:'',limiteVisual:RENDER_STEP,sincronizando:false,acao:false,
+    cacheEm:0,versao:'',ultimoSync:0,qrIndex:{}
+  };
 
-  function $(id){return document.getElementById(id);}
-  function txt(v){return String(v==null?'':v);}
-  function now(){return Date.now();}
-  function esc(v){return txt(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-  function turmaValida(v){return /^\d{2}-\d{2}-\d{4}$/.test(txt(v).trim());}
-  function hora(ts){try{return new Date(ts||now()).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}catch(e){return '';}}
-  function formatarPresenca(v){if(!v)return '';if(typeof v==='number'){try{return new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch(e){}}return txt(v);}
-  function keyBase(turma){return BASE_PREFIX+turma;}
+  var previa=[],buscaTimer=null,toastTimer=null,observer=null,syncTimer=null;
+  var scannerStream=null,scannerDetector=null,scannerAtivo=false,scannerLoopBusy=false,scannerRecentes={};
+  var ticketAtual=null;
+  var confirmacaoPendente=null;
 
-  function carregarJson(chave,padrao){
-    try{var x=JSON.parse(localStorage.getItem(chave)||'');return x&&typeof x==='object'?x:padrao;}catch(e){return padrao;}
+  function escapar(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+  function numeros(v){return String(v||'').replace(/\D/g,'');}
+  function telNormal(v){var n=numeros(v);return n.indexOf('55')===0&&n.length>11?n.slice(2):n;}
+  function formatarTelefone(v){var n=telNormal(v);if(n.length===11)return '('+n.slice(0,2)+') '+n.slice(2,7)+'-'+n.slice(7);if(n.length===10)return '('+n.slice(0,2)+') '+n.slice(2,6)+'-'+n.slice(6);return v;}
+  function formatarData(v){return String(v||'').split('-').join('/');}
+  function erroTexto(e){return e&&e.message?e.message:String(e||'Erro inesperado.');}
+  function normal(v){var s=String(v||'').trim().toLowerCase();try{s=s.normalize('NFD').replace(/[\u0300-\u036f]/g,'');}catch(e){}return s;}
+
+  function rpc(nome,args){
+    return new Promise(function(resolve,reject){
+      var runner=google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
+      runner[nome].apply(runner,args||[]);
+    });
   }
+
+  function lerJson(chave,padrao){try{var x=JSON.parse(localStorage.getItem(chave)||'');return x&&typeof x==='object'?x:padrao;}catch(e){return padrao;}}
   function salvarJson(chave,valor){try{localStorage.setItem(chave,JSON.stringify(valor));}catch(e){}}
+  function cacheKey(turma){return CACHE_PREFIX+'turma:'+turma;}
 
-  function indexarBase(pacote){
-    if(!pacote||!turmaValida(pacote.turma)||!Array.isArray(pacote.participantes))return null;
-    var map={};
-    pacote.participantes.forEach(function(p){
-      var c=txt(p&&p.codigo).replace(/\s+/g,'').toUpperCase();
-      if(!c)return;
-      map[c]={codigo:c,nome:txt(p.nome).trim(),presenca:p.presenca||'',duplicado:!!p.duplicado};
+  function salvarCacheTurma(){
+    if(!estado.turma||!estado.todos.length)return;
+    salvarJson(cacheKey(estado.turma),{
+      turma:estado.turma,periodo:estado.periodo,configuracao:estado.configuracao,
+      contatos:estado.todos,contagens:estado.contagens,criadoEm:estado.cacheEm,
+      versao:estado.versao,salvoEm:Date.now()
     });
-    var base={turma:pacote.turma,versao:txt(pacote.versao),servidorEm:Number(pacote.servidorEm||0),baixadoEm:now(),map:map,total:Object.keys(map).length};
-    bases[base.turma]=base;
-    salvarJson(keyBase(base.turma),{turma:base.turma,versao:base.versao,servidorEm:base.servidorEm,baixadoEm:base.baixadoEm,participantes:Object.keys(map).map(function(c){return map[c];})});
-    atualizarBaseStatus();
-    return base;
+    try{localStorage.setItem(LAST_KEY,estado.turma);}catch(e){}
   }
 
-  function restaurarBase(turma){
-    var p=carregarJson(keyBase(turma),null);
-    if(!p||!Array.isArray(p.participantes))return null;
-    return indexarBase(p);
+  function toast(msg,tipo){
+    clearTimeout(toastTimer);var el=$('toast');el.textContent=msg;el.className=tipo==='erro'?'erro':tipo==='ok'?'ok':'';el.style.display='block';
+    toastTimer=setTimeout(function(){el.style.display='none';},tipo==='erro'?5000:2800);
   }
 
-  function baseAtual(){return bases[$('turma').value.trim()]||null;}
+  function setAcao(v){estado.acao=!!v;document.body.classList.toggle('busy',estado.acao);}
 
-  function atualizarBaseStatus(){
-    var b=baseAtual(),el=$('baseStatus');
-    if(!b){el.className='pill';el.textContent='Base: carregando';return;}
-    el.className='pill ok';el.textContent='Base: '+b.total+' ingresso(s)';
+  function setSync(modo,texto){
+    var b=$('syncBar'),t=$('syncTexto');if(!b||!t)return;
+    b.className='syncbar '+(modo||'');t.textContent=texto||'';
   }
 
-  function atualizarRede(){
-    var online=navigator.onLine!==false,el=$('redeStatus');
-    el.textContent='Internet: '+(online?'online':'offline');el.className='pill'+(online?'':' offline');
-    atualizarSync();
+  function falhaInicial(e){
+    $('inicio').classList.add('hidden');$('identificacao').classList.add('hidden');$('sistema').classList.add('hidden');$('menu').classList.add('hidden');
+    $('erroInicial').textContent=erroTexto(e);$('falha').classList.remove('hidden');
   }
 
-  function atualizarSync(){
-    var n=fila.length,box=$('syncBox');
-    if(!n){box.className='sync';return;}
-    box.className='sync on'+(navigator.onLine===false?' offline':'');
-    if(navigator.onLine===false)$('syncTexto').textContent=n+' leitura(s) salva(s) no aparelho. Aguardando internet.';
-    else $('syncTexto').textContent=n+' leitura(s) sincronizando em segundo plano.';
+  function usarBootstrapLocal(){
+    var b=lerJson(BOOT_KEY,null);if(!b||!b.coordenador||!b.coordenador.identificado||!Array.isArray(b.capacitacoes)||!b.capacitacoes.length)return false;
+    estado.coordenador=b.coordenador;estado.capacitacoes=b.capacitacoes;
+    try{estado.turma=localStorage.getItem(LAST_KEY)||b.capacitacaoAtual||b.capacitacoes[0]||'';}catch(e){estado.turma=b.capacitacaoAtual||b.capacitacoes[0]||'';}
+    if(estado.capacitacoes.indexOf(estado.turma)<0)estado.turma=b.capacitacaoAtual||b.capacitacoes[0]||'';
+    $('inicio').classList.add('hidden');abrirSistema(true);return true;
   }
 
-  function setCamera(texto,classe){$('cameraTexto').textContent=texto;$('cameraDot').className='dot '+(classe||'');}
+  function iniciar(forcar){
+    $('falha').classList.add('hidden');
+    var mostrou=forcar?false:usarBootstrapLocal();
+    if(!mostrou)$('inicio').classList.remove('hidden');
 
-  function mostrarPopup(tipo,titulo,nome,detalhe,duracao){
-    clearTimeout(popupTimer);
-    var p=$('popup');p.className='popup on '+tipo;
-    $('popupTitulo').textContent=titulo||'';$('popupNome').textContent=nome||'';$('popupDetalhe').textContent=detalhe||'';
-    popupTimer=setTimeout(function(){p.className='popup';},duracao||1250);
+    rpc('carregarSistemaInicial',[]).then(function(r){
+      if(!r||typeof r!=='object')throw new Error('Resposta inválida do servidor.');
+      estado.coordenador=r.coordenador||{nome:'',email:'',identificado:false};
+      estado.capacitacoes=Array.isArray(r.capacitacoes)?r.capacitacoes:[];
+      var ultima='';try{ultima=localStorage.getItem(LAST_KEY)||'';}catch(e){}
+      estado.turma=estado.capacitacoes.indexOf(ultima)>=0?ultima:(r.capacitacaoAtual||estado.capacitacoes[0]||'');
+      salvarJson(BOOT_KEY,{coordenador:estado.coordenador,capacitacoes:estado.capacitacoes,capacitacaoAtual:r.capacitacaoAtual||estado.turma,salvoEm:Date.now()});
+      $('inicio').classList.add('hidden');$('falha').classList.add('hidden');
+      if(!estado.coordenador.identificado){$('sistema').classList.add('hidden');$('menu').classList.add('hidden');$('identificacao').classList.remove('hidden');return;}
+      abrirSistema(false);
+    }).catch(function(e){if(!mostrou)falhaInicial(e);else setSync('err','Sem sincronização agora. Dados locais mantidos.');});
+  }
+  window.iniciar=iniciar;
+
+  function salvarNome(){
+    var n=$('nomeCoordenador').value.trim();if(n.length<2){toast('Informe seu nome.','erro');return;}
+    setAcao(true);rpc('salvarCoordenador',[n]).then(function(c){estado.coordenador=c;setAcao(false);iniciar(true);}).catch(function(e){setAcao(false);toast(erroTexto(e),'erro');});
+  }
+  window.salvarNome=salvarNome;
+
+  function trocarCoordenador(){
+    $('nomeCoordenador').value=estado.coordenador?estado.coordenador.nome:'';
+    $('sistema').classList.add('hidden');$('menu').classList.add('hidden');$('identificacao').classList.remove('hidden');
+  }
+  window.trocarCoordenador=trocarCoordenador;
+
+  function abrirSistema(somenteLocal){
+    $('identificacao').classList.add('hidden');$('sistema').classList.remove('hidden');$('menu').classList.remove('hidden');
+    $('coordenadorAtual').textContent=estado.coordenador.nome||'';$('emailCoordenador').textContent=estado.coordenador.email||'';
+    preencherTurmas();abrirPainel('contatos');carregarTurma(estado.turma,false,somenteLocal);
   }
 
-  function desbloquearAudio(){
-    try{var C=window.AudioContext||window.webkitAudioContext;if(!C)return;if(!audioCtx)audioCtx=new C();if(audioCtx.state==='suspended')audioCtx.resume();}catch(e){}
+  function preencherTurmas(){
+    $('capacitacao').innerHTML=estado.capacitacoes.map(function(n){return '<option value="'+escapar(n)+'">'+escapar(formatarData(n))+'</option>';}).join('');
+    $('capacitacao').value=estado.turma;
   }
 
-  function feedback(tipo){
-    try{
-      if(tipo==='ok')navigator.vibrate&&navigator.vibrate(45);
-      else if(tipo==='aviso')navigator.vibrate&&navigator.vibrate([55,35,55]);
-      else navigator.vibrate&&navigator.vibrate([100,45,100]);
-      desbloquearAudio();if(!audioCtx||audioCtx.state!=='running')return;
-      var o=audioCtx.createOscillator(),g=audioCtx.createGain();g.gain.value=.035;o.connect(g);g.connect(audioCtx.destination);
-      o.frequency.value=tipo==='ok'?900:(tipo==='aviso'?590:260);o.start();
-      if(tipo==='aviso'){o.frequency.setValueAtTime(740,audioCtx.currentTime+.07);o.stop(audioCtx.currentTime+.14);}else o.stop(audioCtx.currentTime+(tipo==='erro'?.16:.055));
-    }catch(e){}
+  function trocarTurma(){
+    estado.turma=$('capacitacao').value;estado.busca='';estado.filtro='pendentes';estado.limiteVisual=RENDER_STEP;
+    $('busca').value='';$('filtro').value='pendentes';cancelarPrevia();
+    try{localStorage.setItem(LAST_KEY,estado.turma);}catch(e){}
+    carregarTurma(estado.turma,false,false);
+  }
+  window.trocarTurma=trocarTurma;
+
+  function abrirPainel(nome){
+    if(nome!=='checkin')pararScanner();
+    ['contatos','importar','checkin','opcoes'].forEach(function(n){$('painel-'+n).classList.toggle('hidden',n!==nome);$('tab-'+n).classList.toggle('ativo',n===nome);});
+    if(nome==='contatos')observarFim();
+  }
+  window.abrirPainel=abrirPainel;
+
+  function aplicarSnapshot(s,origem){
+    if(!s||!Array.isArray(s.contatos)||s.turma!==estado.turma)return;
+    estado.todos=s.contatos;estado.periodo=s.periodo||null;estado.configuracao=s.configuracao||{};
+    estado.contagens=s.contagens||contarLocal(estado.todos);estado.cacheEm=Number(s.criadoEm||Date.now());estado.versao=String(s.versao||'');estado.ultimoSync=origem==='servidor'?Date.now():estado.ultimoSync;
+    estado.limiteVisual=RENDER_STEP;reconstruirQrIndex();atualizarPeriodo();preencherConfig();renderTudo();salvarCacheTurma();
+    setSync(origem==='servidor'?'ok':'','Dados '+(origem==='servidor'?'sincronizados agora':'carregados do aparelho'));
   }
 
-  function addHistorico(tipo,nome,detalhe,key){
-    historico.unshift({tipo:tipo,nome:nome||'',detalhe:detalhe||'',ts:now(),key:key||''});
-    historico=historico.slice(0,HISTORY_LIMIT);salvarJson(HISTORY_KEY,historico);renderHistorico();
-  }
+  function carregarTurma(turma,forcar,somenteLocal){
+    if(!turma)return;
+    var local=lerJson(cacheKey(turma),null);
+    if(local&&Array.isArray(local.contatos))aplicarSnapshot(local,'local');
+    else{$('listaContatos').innerHTML='<div class="card"><span class="spinner"></span>Preparando contatos...</div>';setSync('','Preparando dados...');}
+    if(somenteLocal)return;
 
-  function patchHistorico(key,tipo,nome,detalhe){
-    var achou=false;
-    for(var i=0;i<historico.length;i++)if(historico[i].key===key){historico[i].tipo=tipo;historico[i].nome=nome||historico[i].nome;historico[i].detalhe=detalhe||historico[i].detalhe;historico[i].ts=now();achou=true;break;}
-    if(!achou)addHistorico(tipo,nome,detalhe,key);else{salvarJson(HISTORY_KEY,historico);renderHistorico();}
-  }
-
-  function renderHistorico(){
-    var el=$('historico');if(!historico.length){el.innerHTML='<div class="hist-vazio">Nenhuma leitura ainda.</div>';return;}
-    el.innerHTML=historico.map(function(h){return '<div class="hist '+esc(h.tipo)+'"><span class="bol"></span><div><div class="nome">'+esc(h.nome)+'</div><div class="det">'+esc(h.detalhe)+'</div></div><div class="hora">'+esc(hora(h.ts))+'</div></div>';}).join('');
-  }
-
-  function interpretar(raw,manual){
-    raw=txt(raw).trim();if(!raw)throw new Error('Código vazio.');
-    if(raw.indexOf('RAFAH|')===0){
-      var p=raw.split('|');if(p.length!==3||!turmaValida(p[1])||!txt(p[2]).trim())throw new Error('QR Code inválido.');
-      var codigo=txt(p[2]).replace(/\s+/g,'').toUpperCase();return{raw:raw,turma:p[1],codigo:codigo,key:p[1]+'|'+codigo,qr:true};
-    }
-    var turma=$('turma').value.trim();if(!turmaValida(turma))throw new Error('Informe a turma no formato DD-MM-AAAA.');
-    var c=raw.replace(/\s+/g,'').toUpperCase();return{raw:c,turma:turma,codigo:c,key:turma+'|'+c,qr:false,manual:!!manual};
-  }
-
-  function filaTem(key){return fila.some(function(i){return i.key===key;});}
-
-  function enfileirar(item,nome){
-    if(filaTem(item.key))return;
-    fila.push({id:'q'+now()+'_'+Math.random().toString(36).slice(2,8),key:item.key,valor:item.raw,turma:item.turma,codigo:item.codigo,nome:nome||'',lidoEm:now(),tentativas:0,nextAt:now(),estado:'pendente'});
-    salvarFila();atualizarSync();processarFila();
-  }
-
-  function salvarFila(){
-    salvarJson(PENDING_KEY,fila.slice(-600).map(function(i){return{id:i.id,key:i.key,valor:i.valor,turma:i.turma,codigo:i.codigo,nome:i.nome,lidoEm:i.lidoEm,tentativas:i.tentativas||0,nextAt:i.nextAt||0,estado:i.estado==='enviando'?'pendente':i.estado};}));
-  }
-
-  function registrarLocal(item,p){
-    var b=bases[item.turma];if(!b||!p)return;
-    p.presenca=now();b.map[item.codigo]=p;
-    var salvo=carregarJson(keyBase(item.turma),null);
-    if(salvo&&Array.isArray(salvo.participantes)){
-      for(var i=0;i<salvo.participantes.length;i++)if(txt(salvo.participantes[i].codigo).toUpperCase()===item.codigo){salvo.participantes[i].presenca=p.presenca;break;}
-      salvo.baixadoEm=b.baixadoEm;salvarJson(keyBase(item.turma),salvo);
-    }
-  }
-
-  function receberLeitura(valor,manual){
-    var item;
-    try{item=interpretar(valor,manual);}catch(e){mostrarPopup('erro','LEITURA INVÁLIDA','Nada foi registrado',e.message||String(e),2200);feedback('erro');return;}
-
-    var t=now(),last=Number(recentes[item.key]||0);if(t-last<RECENT_MS)return;recentes[item.key]=t;
-    if(item.qr&&$('turma').value.trim()!==item.turma){$('turma').value=item.turma;carregarOuRestaurarBase(item.turma,false);}
-
-    var b=bases[item.turma]||restaurarBase(item.turma);
-    if(!b){
-      mostrarPopup('lido','QR RECONHECIDO','Carregando a turma…','A primeira leitura desta turma precisa baixar a base.',1500);
-      carregarBaseServidor(item.turma,false).then(function(){receberLeitura(item.raw,manual);}).catch(function(){mostrarPopup('erro','SEM BASE LOCAL','Não foi possível validar','Confira a internet e tente novamente.',2600);feedback('erro');});
-      return;
-    }
-
-    var p=b.map[item.codigo];
-    if(!p){
-      // Pode ser um ingresso criado depois da última atualização local. Confere uma vez no servidor.
-      mostrarPopup('lido','VALIDANDO','Ingresso recente','Atualizando a base desta turma…',1250);
-      carregarBaseServidor(item.turma,true).then(function(){var nb=bases[item.turma];var np=nb&&nb.map[item.codigo];if(np){recentes[item.key]=0;receberLeitura(item.raw,manual);}else{mostrarPopup('erro','NÃO REGISTRADO','Ingresso não encontrado','Confira o ingresso ou a turma.',2800);feedback('erro');addHistorico('erro',item.codigo,'Ingresso não encontrado na turma',item.key);}}).catch(function(){mostrarPopup('erro','NÃO REGISTRADO','Não foi possível validar','Falha ao atualizar a base.',2600);feedback('erro');});
-      return;
-    }
-    if(p.duplicado){mostrarPopup('erro','NÃO REGISTRADO',p.nome||item.codigo,'Código duplicado na planilha.',2800);feedback('erro');addHistorico('erro',p.nome||item.codigo,'Código duplicado',item.key);return;}
-
-    if(p.presenca){
-      mostrarPopup('aviso','JÁ REGISTRADO',p.nome,formatarPresenca(p.presenca)||'Presença já registrada.',1350);feedback('aviso');addHistorico('aviso',p.nome,'Já registrado'+(formatarPresenca(p.presenca)?' • '+formatarPresenca(p.presenca):''),item.key);return;
-    }
-
-    // Aqui está a mudança central da v6: confirma visualmente primeiro, grava no Google depois.
-    registrarLocal(item,p);
-    mostrarPopup('ok','ENTRADA REGISTRADA',p.nome,navigator.onLine===false?'Salvo no aparelho. Sincroniza quando a internet voltar.':'Pode ler o próximo ingresso.',1150);
-    feedback('ok');addHistorico('pendente',p.nome,'Registrado no aparelho • sincronizando',item.key);enfileirar(item,p.nome);
-    if(manual)$('codigo').value='';
-  }
-
-  function removerFila(id){fila=fila.filter(function(i){return i.id!==id;});salvarFila();atualizarSync();}
-
-  function retry(item){
-    item.estado='pendente';item.tentativas=Number(item.tentativas||0)+1;
-    var delays=[1800,3500,7000,12000,22000,40000,60000];item.nextAt=now()+delays[Math.min(item.tentativas-1,delays.length-1)];
-    salvarFila();atualizarSync();patchHistorico(item.key,'pendente',item.nome||item.codigo,'Salvo no aparelho • aguardando sincronização');
-  }
-
-  function aplicarRespostaServidor(item,r){
-    removerFila(item.id);
-    var b=bases[item.turma],p=b&&b.map[item.codigo];if(p&&r.presenca)p.presenca=r.presenca;
-    var detalhe=r.jaRegistrado?'Já constava no servidor'+(r.presenca?' • '+r.presenca:''):'Sincronizado com a planilha'+(r.presenca?' • '+r.presenca:'');
-    patchHistorico(item.key,r.jaRegistrado?'aviso':'ok',r.nome||item.nome||item.codigo,detalhe);
-  }
-
-  function falhaDefinitiva(item,msg){
-    removerFila(item.id);
-    var b=bases[item.turma],p=b&&b.map[item.codigo];if(p)p.presenca='';
-    patchHistorico(item.key,'erro',item.nome||item.codigo,'Falha no servidor: '+msg);
-    mostrarPopup('erro','REVISE ESTA ENTRADA',item.nome||item.codigo,msg,3300);feedback('erro');
-  }
-
-  function executar(item){
-    ativos++;item.estado='enviando';salvarFila();
-    jsonp('checkin',{valor:item.valor,turma:item.turma},REQUEST_TIMEOUT).then(function(res){
-      if(res&&res.ok){aplicarRespostaServidor(item,res.resultado||{});return;}
-      var msg=(res&&res.erro)||'Não foi possível registrar.';if(res&&res.repetir===false)falhaDefinitiva(item,msg);else retry(item);
-    }).catch(function(){retry(item);}).finally(function(){ativos=Math.max(0,ativos-1);processarFila();});
-  }
-
-  function processarFila(){
-    if(navigator.onLine===false){atualizarSync();return;}
-    var t=now();while(ativos<MAX_ATIVOS){var item=null;for(var i=0;i<fila.length;i++)if(fila[i].estado!=='enviando'&&Number(fila[i].nextAt||0)<=t){item=fila[i];break;}if(!item)break;executar(item);}atualizarSync();
-  }
-
-  function jsonp(api,params,timeout){
-    params=params||{};return new Promise(function(resolve,reject){
-      var cb='rafahV6_'+Date.now()+'_'+Math.floor(Math.random()*1000000),s=document.createElement('script'),acabou=false,timer;
-      function limpar(){try{delete window[cb];}catch(e){window[cb]=undefined;}if(s.parentNode)s.parentNode.removeChild(s);}
-      window[cb]=function(r){if(acabou)return;acabou=true;clearTimeout(timer);limpar();resolve(r);};
-      s.onerror=function(){if(acabou)return;acabou=true;clearTimeout(timer);limpar();reject(new Error('Falha de comunicação.'));};
-      var q=['api='+encodeURIComponent(api),'callback='+encodeURIComponent(cb),'_='+Date.now()];Object.keys(params).forEach(function(k){if(params[k]!=null&&params[k]!=='')q.push(encodeURIComponent(k)+'='+encodeURIComponent(params[k]));});
-      s.src=API+'?'+q.join('&');s.async=true;document.head.appendChild(s);timer=setTimeout(function(){if(acabou)return;acabou=true;limpar();reject(new Error('Tempo excedido.'));},timeout||REQUEST_TIMEOUT);
+    estado.sincronizando=true;setSync('','Sincronizando com a planilha...');
+    rpc('carregarPainelLocal',[turma,!!forcar]).then(function(s){
+      estado.sincronizando=false;if(turma!==estado.turma)return;aplicarSnapshot(s,'servidor');
+    }).catch(function(e){
+      estado.sincronizando=false;if(turma!==estado.turma)return;
+      if(!local)$('listaContatos').innerHTML='<div class="card">Não foi possível carregar os contatos.</div>';
+      setSync(navigator.onLine===false?'off':'err',navigator.onLine===false?'Sem internet. Usando dados do aparelho.':'Falha ao sincronizar. Dados locais mantidos.');
+      if(!local)toast(erroTexto(e),'erro');
     });
   }
 
-  function carregarBaseServidor(turma,forcar){
-    if(navigator.onLine===false)return Promise.reject(new Error('Sem internet.'));
-    return jsonp('scanner-data',{turma:turma,forcar:forcar?'1':'0'},REQUEST_TIMEOUT).then(function(res){if(!res||!res.ok)throw new Error((res&&res.erro)||'Não foi possível carregar os ingressos.');var b=indexarBase(res.resultado||{});if(!b)throw new Error('Base inválida.');return b;});
+  function atualizarAgora(){if(estado.sincronizando||!estado.turma)return;carregarTurma(estado.turma,true,false);}
+  window.atualizarAgora=atualizarAgora;
+
+  function agendarSync(){
+    clearTimeout(syncTimer);syncTimer=setTimeout(function(){if(!estado.sincronizando&&estado.turma)carregarTurma(estado.turma,true,false);},700);
   }
 
-  function carregarOuRestaurarBase(turma,forcar){
-    if(!turmaValida(turma))return Promise.reject(new Error('Turma inválida.'));
-    var cache=bases[turma]||restaurarBase(turma);atualizarBaseStatus();
-    if(cache&&navigator.onLine===false)return Promise.resolve(cache);
-    if(cache&&!forcar&&now()-Number(cache.baixadoEm||0)<BASE_REFRESH_MS)return Promise.resolve(cache);
-    return carregarBaseServidor(turma,!!forcar).catch(function(e){if(cache)return cache;throw e;});
+  function contarLocal(lista){
+    var c={pendentes:0,aguardando:0,confirmados:0,ingressoPendente:0,naoVai:0,todos:lista.length};
+    lista.forEach(function(p){if(p.status==='Pendente')c.pendentes++;else if(p.status==='Aguardando confirmação')c.aguardando++;else if(p.status==='Confirmado'){c.confirmados++;if((p.email&&!p.ingressoEmail)||!p.ingressoWhatsApp)c.ingressoPendente++;}else if(p.status==='Não vai')c.naoVai++;});
+    return c;
   }
 
-  function esconderMsgCamera(){$('cameraMsg').style.display='none';}
-  function mostrarBotaoCamera(){$('abrirCamera').style.display='block';}
-
-  async function iniciarNative(){
-    nativeDetector=new BarcodeDetector({formats:['qr_code']});
-    nativeStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
-    var v=$('video');v.srcObject=nativeStream;await v.play();$('reader').classList.add('native');esconderMsgCamera();nativeAtivo=true;cameraMode='native';$('motor').textContent='Motor: BarcodeDetector local';setCamera('câmera ativa','on');solicitarWakeLock();loopNative();
+  function reconstruirQrIndex(){
+    var m={};estado.todos.forEach(function(p){var c=String(p.codigoIngresso||'').toUpperCase();if(c)m[c]=p;});estado.qrIndex=m;
   }
 
-  function loopNative(){
-    if(!nativeAtivo||!nativeDetector)return;if(nativeDetectando){setTimeout(loopNative,65);return;}nativeDetectando=true;
-    nativeDetector.detect($('video')).then(function(codes){if(codes&&codes[0]&&codes[0].rawValue)receberLeitura(codes[0].rawValue,false);}).catch(function(){}).finally(function(){nativeDetectando=false;if(nativeAtivo)setTimeout(loopNative,60);});
+  function renderTudo(){estado.contagens=contarLocal(estado.todos);renderResumo();renderLista();}
+
+  function mudarFiltro(f){estado.filtro=f;estado.busca='';estado.limiteVisual=RENDER_STEP;$('busca').value='';$('filtro').value=f;renderTudo();}
+  window.mudarFiltro=mudarFiltro;window.selecionarFiltro=mudarFiltro;
+
+  function agendarBusca(){clearTimeout(buscaTimer);buscaTimer=setTimeout(function(){estado.busca=$('busca').value.trim();estado.limiteVisual=RENDER_STEP;renderLista();renderResumo();},90);}
+  window.agendarBusca=agendarBusca;
+
+  function atualizarPeriodo(){var p=estado.periodo;$('periodo').textContent=p?'Cadastros de '+p.inicioTexto+' a '+p.fimTexto:'';}
+
+  function renderResumo(){
+    var c=estado.contagens||{};var itens=[['pendentes','Pendentes',c.pendentes||0],['aguardando','Aguardando',c.aguardando||0],['confirmados','Confirmados',c.confirmados||0],['ingresso-pendente','Ingresso pendente',c.ingressoPendente||0]];
+    $('resumo').innerHTML=itens.map(function(x){return '<button class="indicador '+(estado.filtro===x[0]&&!estado.busca?'ativo':'')+'" onclick="selecionarFiltro(\''+x[0]+'\')"><strong>'+x[2]+'</strong><span>'+x[1]+'</span></button>';}).join('');
   }
 
-  async function iniciarHtml5(){
-    if(typeof Html5Qrcode==='undefined')throw new Error('Leitor alternativo indisponível.');
-    $('video').style.display='none';$('reader').classList.remove('native');esconderMsgCamera();
-    html5Reader=html5Reader||new Html5Qrcode('readerFallback',false);
-    await html5Reader.start({facingMode:'environment'},{fps:24,qrbox:function(vw,vh){var s=Math.floor(Math.min(vw,vh)*.72);return{width:s,height:s};},aspectRatio:1.333333,disableFlip:true},function(v){receberLeitura(v,false);},function(){});
-    html5Ativo=true;cameraMode='html5';$('motor').textContent='Motor: leitor local alternativo';setCamera('câmera ativa','on');solicitarWakeLock();
+  function ehIngressoPendente(p){return p.status==='Confirmado'&&((p.email&&!p.ingressoEmail)||!p.ingressoWhatsApp);}
+  function combinaFiltro(p){
+    var b=normal(estado.busca);if(b){var t=numeros(b);return normal(p.nome).indexOf(b)>=0||(t&&String(p.telefone||'').indexOf(t)>=0);}
+    if(estado.filtro==='todos')return true;if(estado.filtro==='pendentes')return p.status==='Pendente';if(estado.filtro==='aguardando')return p.status==='Aguardando confirmação';if(estado.filtro==='confirmados')return p.status==='Confirmado';if(estado.filtro==='ingresso-pendente')return ehIngressoPendente(p);if(estado.filtro==='nao-vai')return p.status==='Não vai';return true;
   }
 
-  async function iniciarCamera(){
-    if(nativeAtivo||html5Ativo)return;
-    desbloquearAudio();setCamera('abrindo','busy');$('abrirCamera').style.display='none';
+  function statusClasse(s){return s==='Confirmado'?'confirmado':s==='Não vai'?'nao-vai':s==='Aguardando confirmação'?'aguardando':'';}
+
+  function cartao(p){
+    var id=escapar(p.id),finalizado=p.status==='Confirmado'||p.status==='Não vai';
+    var outro=p.chamadoPor&&estado.coordenador&&p.chamadoPor!==estado.coordenador.nome;
+    var whatsappConvite=!finalizado?((outro)?'<button class="secondary" disabled>Contato assumido</button>':'<button class="whatsapp" onclick="abrirWhatsApp(\''+id+'\')">WhatsApp</button>'):'';
+    var confirmar=p.status==='Confirmado'?'<button class="green" disabled>Confirmado</button>':finalizado?'':'<button class="green" onclick="confirmar(\''+id+'\')">Confirmar</button>';
+    var naoVai=finalizado?'':'<button class="red" onclick="naoVai(\''+id+'\')">Não vai</button>';
+    var corrigir=finalizado?'<button class="secondary" onclick="corrigirStatus(\''+id+'\')">Mais opções</button>':'';
+    var emailTexto=!p.email?'não cadastrado':(p.ingressoEmail?'enviado':'pendente');
+    var entregas=p.status==='Confirmado'?'<div class="entregas"><span class="tag '+(p.ingressoEmail?'ok':'')+'">E-mail: '+emailTexto+'</span><span class="tag '+(p.ingressoWhatsApp?'ok':'')+'">WhatsApp: '+(p.ingressoWhatsApp?'enviado':'pendente')+'</span>'+(p.presente?'<span class="tag ok">Presença registrada</span>':'')+'</div>':'';
+    var ingresso='';
+    if(p.status==='Confirmado'){
+      ingresso='<button onclick="abrirIngresso(\''+id+'\')">Ingresso</button>';
+      if(p.email&&!p.ingressoEmail)ingresso+='<button class="secondary" onclick="enviarEmailIngresso(\''+id+'\')">Enviar e-mail</button>';
+      if(!p.ingressoWhatsApp)ingresso+='<button class="whatsapp" onclick="abrirIngressoParaWhatsApp(\''+id+'\')">Enviar ingresso WhatsApp</button>';
+    }
+    var origem=p.origemConfirmacao==='Online'?'<div class="muted">Inscrição online</div>':(p.origem!=='Forms'?'<div class="muted">Incluído manualmente</div>':'');
+    return '<div class="card" data-id="'+id+'"><div class="nome">'+escapar(p.nome)+'</div><div class="telefone">'+escapar(formatarTelefone(p.telefone))+'</div><span class="status '+statusClasse(p.status)+'">'+escapar(p.status)+'</span>'+(p.presente?'<span class="presenca">Compareceu</span>':'')+(p.chamadoPor?'<div class="muted" style="margin-top:7px">Chamado por '+escapar(p.chamadoPor)+'</div>':'')+origem+entregas+'<div class="acoes">'+whatsappConvite+confirmar+naoVai+ingresso+corrigir+'</div></div>';
+  }
+
+  function filtrados(){return estado.todos.filter(combinaFiltro);}
+
+  function renderLista(){
+    var todos=filtrados(),visiveis=todos.slice(0,estado.limiteVisual);
+    $('listaContatos').innerHTML=visiveis.length?visiveis.map(cartao).join(''):'<div class="card">Nenhum participante encontrado.</div>';
+    $('rodapeLista').textContent=visiveis.length+' de '+todos.length+' contato(s)'+(visiveis.length<todos.length?' · role para ver mais':'');
+    observarFim();
+  }
+
+  function observarFim(){
+    if(observer)observer.disconnect();if(!('IntersectionObserver'in window))return;
+    observer=new IntersectionObserver(function(entries){if(entries[0]&&entries[0].isIntersecting){var n=filtrados().length;if(estado.limiteVisual<n){estado.limiteVisual+=RENDER_STEP;renderLista();}}},{rootMargin:'500px 0px'});
+    observer.observe($('sentinela'));
+  }
+
+  function achar(id){for(var i=0;i<estado.todos.length;i++)if(estado.todos[i].id===id)return estado.todos[i];return null;}
+  function clonar(p){return JSON.parse(JSON.stringify(p));}
+
+  function patchLocal(id,patch){
+    var p=achar(id);if(!p)return;Object.keys(patch).forEach(function(k){p[k]=patch[k];});reconstruirQrIndex();renderTudo();salvarCacheTurma();
+  }
+
+  function restaurarPessoa(id,backup){
+    for(var i=0;i<estado.todos.length;i++)if(estado.todos[i].id===id){estado.todos[i]=backup;break;}reconstruirQrIndex();renderTudo();salvarCacheTurma();
+  }
+
+  function abrirWhatsApp(id){
+    if(estado.acao)return;var janela=window.open('about:blank','_blank');if(!janela){toast('Permita pop-ups para abrir o WhatsApp.','erro');return;}
+    setAcao(true);rpc('chamarWhatsApp',[id,estado.turma]).then(function(r){setAcao(false);patchLocal(id,{status:r.status||'Aguardando confirmação',chamadoPor:r.chamadoPor||estado.coordenador.nome});janela.location.href=r.url;}).catch(function(e){setAcao(false);janela.close();toast(erroTexto(e),'erro');agendarSync();});
+  }
+  window.abrirWhatsApp=abrirWhatsApp;
+
+  function confirmar(id){
+    var p=achar(id);if(!p||estado.acao)return;
+    if(!confirm('Confirmar '+p.nome+' na capacitação '+formatarData(estado.turma)+'?'))return;
+    toast('Conferindo inscrição de '+p.nome+'...');
+    rpc('validarInscricaoParaConfirmacao',[id,estado.turma]).then(function(v){
+      if(v&&v.duplicadas){abrirModalInscricao(id,v.candidatos||[]);return;}
+      if(!v||!v.ok||!v.inscricao)throw new Error((v&&v.mensagem)||'Não foi possível conferir a inscrição.');
+      return executarConfirmacaoValidada(id,v.inscricao.chave,v.inscricao);
+    }).catch(function(e){toast(erroTexto(e),'erro');});
+  }
+  window.confirmar=confirmar;
+
+  function executarConfirmacaoValidada(id,chave,inscricao){
+    var p=achar(id);if(!p||estado.acao)return Promise.resolve();
+    fecharModalInscricao();
+    var backup=clonar(p);
+    patchLocal(id,{
+      status:'Confirmado',
+      chamadoPor:p.chamadoPor||estado.coordenador.nome,
+      ingressoEmail:false,
+      ingressoWhatsApp:false,
+      presente:false,
+      presenca:'',
+      email:inscricao&&inscricao.email?inscricao.email:'',
+      emailValido:!!(inscricao&&inscricao.emailValido)
+    });
+    toast('Inscrição conferida. Confirmando '+p.nome+'...');
+    return rpc('confirmarParticipacao',[id,estado.turma,chave]).then(function(r){
+      var oficial=(r&&r.inscricao)||inscricao||{};
+      patchLocal(id,{email:oficial.email||'',emailValido:!!oficial.emailValido});
+      toast(r.mensagem+' Preparando ingresso...','ok');
+      return entregarAposConfirmacao(id);
+    }).catch(function(e){
+      restaurarPessoa(id,backup);toast(erroTexto(e),'erro');agendarSync();
+    });
+  }
+
+  function abrirModalInscricao(id,candidatos){
+    var p=achar(id);if(!p)return;
+    confirmacaoPendente={id:id,candidatos:candidatos||[]};
+    var html=(candidatos||[]).map(function(c){
+      var email=c.email||'Sem e-mail cadastrado';
+      var aviso=c.emailValido?'':'<div class="meta" style="color:#8c5b00;font-weight:700">E-mail ausente ou inválido. A confirmação será permitida, mas o ingresso não será enviado por e-mail.</div>';
+      return '<div class="inscricao-opcao">'+
+        '<strong>'+escapar(c.nome||p.nome)+'</strong>'+
+        '<div class="meta">Telefone: '+escapar(formatarTelefone(c.telefone||p.telefone))+'</div>'+
+        '<div class="meta">E-mail: '+escapar(email)+'</div>'+
+        '<div class="meta">Inscrição: '+escapar(c.inscritoEm||'data não disponível')+'</div>'+aviso+
+        '<button class="green" onclick="confirmarComInscricao(\''+escapar(c.chave)+'\')">Usar este cadastro e confirmar</button></div>';
+    }).join('');
+    $('listaInscricoesDuplicadas').innerHTML=html||'<div class="card">Nenhum cadastro disponível.</div>';
+    $('modalInscricao').classList.remove('hidden');
+  }
+
+  function fecharModalInscricao(){
+    if($('modalInscricao'))$('modalInscricao').classList.add('hidden');
+    confirmacaoPendente=null;
+  }
+  window.fecharModalInscricao=fecharModalInscricao;
+
+  function confirmarComInscricao(chave){
+    if(!confirmacaoPendente||estado.acao)return;
+    var pendente=confirmacaoPendente;
+    var c=(pendente.candidatos||[]).find(function(x){return x.chave===chave;});
+    if(!c){toast('Cadastro selecionado não encontrado. Atualize o painel.','erro');return;}
+    executarConfirmacaoValidada(pendente.id,chave,c);
+  }
+  window.confirmarComInscricao=confirmarComInscricao;
+
+  function naoVai(id){
+    var p=achar(id);if(!p||estado.acao)return;if(!confirm('Registrar que '+p.nome+' não vai participar?'))return;
+    var backup=clonar(p);patchLocal(id,{status:'Não vai',chamadoPor:p.chamadoPor||estado.coordenador.nome});
+    rpc('registrarNaoVai',[id,estado.turma]).then(function(r){toast(r.mensagem,'ok');}).catch(function(e){restaurarPessoa(id,backup);toast(erroTexto(e),'erro');agendarSync();});
+  }
+  window.naoVai=naoVai;
+
+  function corrigirStatus(id){
+    var p=achar(id);if(!p||estado.acao)return;var novo=p.status==='Confirmado'?'Não vai':'Confirmado';
+    if(!confirm('Área de correção\n\nAlterar '+p.nome+' de “'+p.status+'” para “'+novo+'”?'))return;
+    if(!confirm('CONFIRME A CORREÇÃO\n\n'+p.nome+'\n'+p.status+' → '+novo+'\n\nA lista usada para certificados também será alterada.'))return;
+    var backup=clonar(p);patchLocal(id,{status:novo,ingressoEmail:false,ingressoWhatsApp:false,presente:false,presenca:''});
+    rpc('alterarStatusFinal',[id,estado.turma,novo]).then(function(r){toast(r.mensagem,'ok');if(novo==='Confirmado')return entregarAposConfirmacao(id);agendarSync();}).catch(function(e){restaurarPessoa(id,backup);toast(erroTexto(e),'erro');agendarSync();});
+  }
+  window.corrigirStatus=corrigirStatus;
+
+  function enviarEmailIngresso(id){
+    var p=achar(id);if(!p||p.status!=='Confirmado'||estado.acao)return Promise.resolve(null);
+    if(!p.email){toast(p.nome+' não possui e-mail cadastrado.','erro');return Promise.resolve(null);}
+    toast('Preparando ingresso para e-mail...');
+    return prepararIngresso(id,false).then(function(t){
+      return rpc('enviarIngressoEmail',[id,estado.turma,t.dataUrl]).then(function(r){
+        if(r&&r.enviado){patchLocal(id,{ingressoEmail:true});atualizarStatusModalEntrega(id,'E-mail enviado para '+(r.email||p.email)+'.','ok');toast(r.mensagem,'ok');}
+        else{atualizarStatusModalEntrega(id,(r&&r.mensagem)||'E-mail não enviado.','off');toast((r&&r.mensagem)||'E-mail não enviado.','erro');}
+        return r;
+      });
+    }).catch(function(e){atualizarStatusModalEntrega(id,'Falha no envio por e-mail. Você pode tentar novamente.','err');toast(erroTexto(e),'erro');return null;});
+  }
+  window.enviarEmailIngresso=enviarEmailIngresso;
+
+  function marcarIngresso(id,canal){
+    var p=achar(id);if(!p||p.status!=='Confirmado'||estado.acao)return;
+    if(canal==='email'){enviarEmailIngresso(id);return;}
+    if(!confirm('Marcar o ingresso de '+p.nome+' como enviado por WhatsApp?'))return;
+    var backup=clonar(p);patchLocal(id,{ingressoWhatsApp:true});
+    rpc('marcarIngressoEnviado',[id,estado.turma,'whatsapp']).then(function(r){atualizarStatusModalEntrega(id,'WhatsApp marcado como enviado.','ok');toast(r.mensagem,'ok');}).catch(function(e){restaurarPessoa(id,backup);toast(erroTexto(e),'erro');});
+  }
+  window.marcarIngresso=marcarIngresso;
+
+  function preencherConfig(){
+    var c=estado.configuracao||{};$('cfgNomeEvento').value=c.nomeEvento||'Capacitação RAFAH';$('cfgHorario').value=c.horario||'';$('cfgLocal').value=c.local||'';$('cfgEndereco').value=c.endereco||'';$('cfgCidade').value=c.cidade||'Belo Horizonte, MG';$('cfgValor').value=Number(c.valor||0).toFixed(2).replace('.',',');$('cfgMensagem').value=c.mensagem||'';
+  }
+
+  function salvarConfigAtual(){
+    if(estado.acao)return;var cfg={turma:estado.turma,nomeEvento:$('cfgNomeEvento').value.trim(),horario:$('cfgHorario').value.trim(),local:$('cfgLocal').value.trim(),endereco:$('cfgEndereco').value.trim(),cidade:$('cfgCidade').value.trim(),valor:$('cfgValor').value.trim(),mensagem:$('cfgMensagem').value.trim()};
+    if(!cfg.nomeEvento){toast('Informe o nome do evento.','erro');return;}
+    estado.configuracao=cfg;salvarCacheTurma();setAcao(true);rpc('salvarConfiguracaoTurma',[cfg]).then(function(r){setAcao(false);estado.configuracao=r;preencherConfig();salvarCacheTurma();toast('Dados da turma salvos.','ok');}).catch(function(e){setAcao(false);toast(erroTexto(e),'erro');agendarSync();});
+  }
+  window.salvarConfigAtual=salvarConfigAtual;
+
+  function criarTurma(){
+    if(estado.acao)return;var data=$('novaData').value.trim();if(!/^\d{2}-\d{2}-\d{4}$/.test(data)){toast('Informe a data como DD-MM-AAAA.','erro');return;}
+    var cfg={turma:data,nomeEvento:$('novoNomeEvento').value.trim()||'Capacitação RAFAH',horario:$('novoHorario').value.trim(),local:$('novoLocal').value.trim(),endereco:$('novoEndereco').value.trim(),cidade:$('novaCidade').value.trim(),valor:$('novoValor').value.trim(),mensagem:$('novaMensagem').value.trim()};
+    if(!confirm('Criar a capacitação '+formatarData(data)+'?'))return;
+    setAcao(true);rpc('criarCapacitacao',[cfg]).then(function(lista){setAcao(false);estado.capacitacoes=lista;estado.turma=data;preencherTurmas();$('novaData').value='';abrirPainel('contatos');trocarTurma();toast('Nova turma criada.','ok');}).catch(function(e){setAcao(false);toast(erroTexto(e),'erro');});
+  }
+  window.criarTurma=criarTurma;
+
+  function limparRotulosImportacao(texto){
+    return String(texto||'')
+      .replace(/^\s*(?:nome(?:\s+completo)?|participante|contato)\s*[:\-–—]?\s*/i,'')
+      .replace(/^\s*(?:celular|telefone|tel\.?|fone|whatsapp|whats|wpp)\s*[:\-–—]?\s*/i,'')
+      .replace(/^[\s:;,|–—-]+|[\s:;,|–—-]+$/g,'')
+      .trim();
+  }
+
+  function ehRotuloImportacao(linha){
+    return /^(?:nome(?:\s+completo)?|participante|contato|celular|telefone|tel\.?|fone|whatsapp|whats|wpp)\s*[:\-–—]?$/i.test(String(linha||'').trim());
+  }
+
+  function pareceNomeImportacao(texto){
+    var s=limparRotulosImportacao(texto);
+    if(!s||ehRotuloImportacao(s))return false;
+    if(/^[\d\s()+.\-]+$/.test(s))return false;
+    return /[A-Za-zÀ-ÿ]/.test(s);
+  }
+
+  function analisarLista(){
+    var texto=$('textoImportacao').value.trim();
+    if(!texto){toast('Cole pelo menos um participante.','erro');return;}
+
+    var telefoneRegex=/(?:\+?55[\s().-]*)?(?:\(?\d{2}\)?[\s().-]*)9?\d{4}[\s.-]*\d{4}/;
+    var linhas=texto.split(/\r?\n/).map(function(l){return l.trim();}).filter(Boolean);
+    var encontrados=[];
+    var nomePendente='';
+
+    function adicionar(nome,telefone){
+      nome=limparRotulosImportacao(nome);
+      telefone=telNormal(telefone);
+      if(!nome&&!telefone)return;
+
+      var duplicado=encontrados.some(function(p){
+        return telNormal(p.telefone)===telefone && normal(p.nome)===normal(nome);
+      });
+      if(!duplicado)encontrados.push({nome:nome,telefone:telefone});
+    }
+
+    linhas.forEach(function(linha){
+      var m=linha.match(telefoneRegex);
+
+      if(m){
+        var telefone=m[0];
+        var resto=linha.replace(m[0],'');
+        var nomeNaLinha=limparRotulosImportacao(resto);
+
+        if(!pareceNomeImportacao(nomeNaLinha))nomeNaLinha='';
+        adicionar(nomeNaLinha||nomePendente,telefone);
+        nomePendente='';
+        return;
+      }
+
+      if(ehRotuloImportacao(linha))return;
+
+      var semRotulo=limparRotulosImportacao(linha);
+      if(!pareceNomeImportacao(semRotulo))return;
+
+      /* Se chegou outro nome sem telefone, mantém o mais recente.
+         Isso evita transformar rótulos/cabeçalhos em participantes extras. */
+      nomePendente=semRotulo;
+    });
+
+    /* Se sobrou apenas um nome no final, mostra-o para correção manual
+       em vez de simplesmente descartá-lo. */
+    if(nomePendente)adicionar(nomePendente,'');
+
+    previa=encontrados;
+    if(!previa.length){
+      $('areaPrevia').classList.add('hidden');
+      toast('Não encontrei nenhum nome com telefone nessa lista.','erro');
+      return;
+    }
+
+    renderPrevia();
+    toast(previa.length+' participante(s) reconhecido(s).','ok');
+  }
+  window.analisarLista=analisarLista;
+
+  function renderPrevia(){$('areaPrevia').classList.remove('hidden');$('previa').innerHTML=previa.map(function(p,i){return '<div class="preview"><div class="muted">Participante '+(i+1)+'</div><label>Nome</label><input id="nome-'+i+'" value="'+escapar(p.nome)+'"><label>Telefone</label><input id="telefone-'+i+'" value="'+escapar(p.telefone)+'"><button class="secondary small" onclick="removerPrevia('+i+')">Remover</button></div>';}).join('');}
+  function lerPrevia(){return previa.map(function(p,i){return{nome:$('nome-'+i).value.trim(),telefone:$('telefone-'+i).value.trim()};});}
+  function removerPrevia(i){previa=lerPrevia();previa.splice(i,1);renderPrevia();}window.removerPrevia=removerPrevia;
+  function cancelarPrevia(){previa=[];$('areaPrevia').classList.add('hidden');}window.cancelarPrevia=cancelarPrevia;
+
+  function confirmarImportacao(){
+    if(estado.acao)return;var pessoas=lerPrevia();if(!pessoas.length){toast('A lista está vazia.','erro');return;}if(pessoas.length>100){toast('Importe até 100 participantes por vez.','erro');return;}
+    for(var i=0;i<pessoas.length;i++){var t=telNormal(pessoas[i].telefone);if(!pessoas[i].nome||(t.length!==10&&t.length!==11)){toast('Corrija os nomes e telefones antes de inserir.','erro');return;}pessoas[i].telefone=t;}
+    if(!confirm('Inserir '+pessoas.length+' participante(s) na turma '+formatarData(estado.turma)+'?'))return;
+    setAcao(true);rpc('importarConfirmados',[pessoas,estado.turma]).then(function(r){setAcao(false);$('textoImportacao').value='';cancelarPrevia();toast(r.incluidos+' incluído(s); '+r.ignorados+' duplicado(s) ignorado(s).','ok');estado.filtro='confirmados';$('filtro').value='confirmados';abrirPainel('contatos');carregarTurma(estado.turma,true,false);}).catch(function(e){setAcao(false);toast(erroTexto(e),'erro');});
+  }
+  window.confirmarImportacao=confirmarImportacao;
+
+  /* ---------- ingresso ---------- */
+  function roundPath(ctx,x,y,w,h,r){r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+  function caixa(ctx,x,y,w,h,r,fill,stroke){roundPath(ctx,x,y,w,h,r);if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke();}}
+  function carregarImagem(src){return new Promise(function(resolve,reject){var img=new Image();img.onload=function(){resolve(img);};img.onerror=reject;img.src=src;});}
+  function textoQuebrado(ctx,texto,x,y,maxW,lh,max){var palavras=String(texto||'').split(/\s+/),linha='',linhas=[];palavras.forEach(function(p){var t=linha?linha+' '+p:p;if(ctx.measureText(t).width>maxW&&linha){linhas.push(linha);linha=p;}else linha=t;});if(linha)linhas.push(linha);if(max&&linhas.length>max){linhas=linhas.slice(0,max);linhas[max-1]=linhas[max-1].replace(/[.,;:]?$/,'…');}linhas.forEach(function(l,i){ctx.fillText(l,x,y+i*lh);});return y+linhas.length*lh;}
+
+  async function desenharIngresso(d){
+    var canvas=$('ticketCanvas'),ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);ctx.fillStyle='#57327d';ctx.fillRect(0,0,W,135);ctx.fillStyle='#f4d35e';ctx.fillRect(0,135,W,10);
+    ctx.fillStyle='#57327d';ctx.font='bold 64px Arial';ctx.fillText(d.config.nomeEvento||'Capacitação RAFAH',70,235);var ps=d.turma.split('-'),data=ps.length===3?ps[0]+'/'+ps[1]+'/'+ps[2]:d.turma;ctx.fillStyle='#372047';ctx.font='bold 34px Arial';ctx.fillText(data+'  •  '+(d.config.horario||''),70,300);ctx.fillStyle='#5c5364';ctx.font='28px Arial';textoQuebrado(ctx,(d.config.local||'')+' • '+(d.config.endereco||'')+' • '+(d.config.cidade||''),70,350,1100,38,3);
+    caixa(ctx,70,455,520,175,24,'#f1eaf7');ctx.fillStyle='#57327d';ctx.font='bold 28px Arial';ctx.fillText('Ingresso',100,500);ctx.font='italic 30px Arial';ctx.fillText('Ingresso único',100,550);ctx.font='bold 46px Arial';ctx.fillText('R$ '+Number(d.config.valor||0).toFixed(2).replace('.',','),100,610);
+    caixa(ctx,650,455,520,175,24,'#f6f3f8');ctx.fillStyle='#57327d';ctx.font='bold 28px Arial';ctx.fillText('Participante',680,500);ctx.font='bold 32px Arial';textoQuebrado(ctx,d.nome,680,550,450,38,2);ctx.fillStyle='#746b7c';ctx.font='22px Arial';ctx.fillText('Confirmado em '+(d.confirmadoEm||''),680,610);
+    var qr=await carregarImagem(d.qrDataUrl);caixa(ctx,325,690,590,590,32,'#fff','#e7e0ed');ctx.drawImage(qr,385,750,470,470);caixa(ctx,360,1300,520,72,30,'#f1eaf7');ctx.fillStyle='#57327d';ctx.font='bold 32px Arial';ctx.textAlign='center';ctx.fillText(d.codigo,W/2,1348);ctx.textAlign='left';
+    caixa(ctx,70,1415,1100,220,24,'#f8f5fb');ctx.fillStyle='#57327d';ctx.font='bold 26px Arial';ctx.fillText('Mensagem da organização',100,1460);ctx.fillStyle='#453d4b';ctx.font='23px Arial';textoQuebrado(ctx,d.config.mensagem||'',100,1505,1040,31,4);var logo=await carregarImagem(d.logoDataUrl);var lw=260,lh=Math.min(lw*(logo.height/logo.width),95);ctx.drawImage(logo,W/2-lw/2,1640,lw,lh);return canvas.toDataURL('image/png',.95);
+  }
+
+  function mostrarIngresso(t){
+    ticketAtual=t;$('ticketPreview').src=t.dataUrl;$('ticketNome').textContent=t.dados.nome;$('modalIngresso').classList.remove('hidden');
+    atualizarStatusModalEntrega(t.id,'Ingresso pronto.','');
+  }
+
+  function prepararIngresso(id,mostrar){
+    var p=achar(id);if(!p||p.status!=='Confirmado')return Promise.reject(new Error('Participante confirmado não encontrado.'));
+    if(ticketAtual&&ticketAtual.id===id&&ticketAtual.dataUrl){if(mostrar)mostrarIngresso(ticketAtual);return Promise.resolve(ticketAtual);}
+    return rpc('obterDadosIngresso',[id,estado.turma]).then(async function(d){
+      var t={id:id,dados:d,dataUrl:await desenharIngresso(d)};ticketAtual=t;if(mostrar)mostrarIngresso(t);return t;
+    });
+  }
+
+  function atualizarStatusModalEntrega(id,msg,classe){
+    if(!ticketAtual||ticketAtual.id!==id)return;
+    var el=$('ticketEntregaStatus');el.className='syncbar'+(classe?' '+classe:'');el.textContent=msg||'Ingresso pronto.';
+    var p=achar(id);if($('btnMarcarWhatsapp'))$('btnMarcarWhatsapp').style.display=p&&p.ingressoWhatsApp?'none':'';
+  }
+
+  function entregarAposConfirmacao(id){
+    var p=achar(id);if(!p)return Promise.resolve();
+    return prepararIngresso(id,false).then(function(t){
+      mostrarIngresso(t);
+      if(!p.email){atualizarStatusModalEntrega(id,'Confirmado. A inscrição não possui e-mail; envie pelo WhatsApp.','off');toast('Confirmado. A inscrição de '+p.nome+' não possui e-mail cadastrado.','ok');agendarSync();return null;}
+      if(p.emailValido===false){atualizarStatusModalEntrega(id,'Confirmado. O e-mail da inscrição é inválido; corrija o cadastro ou envie pelo WhatsApp.','off');toast('Confirmado, mas o e-mail da inscrição é inválido: '+p.email,'erro');agendarSync();return null;}
+      atualizarStatusModalEntrega(id,'Enviando ingresso por e-mail...','');
+      return rpc('enviarIngressoEmail',[id,estado.turma,t.dataUrl]).then(function(r){
+        if(r&&r.enviado){patchLocal(id,{ingressoEmail:true});atualizarStatusModalEntrega(id,'E-mail enviado para '+(r.email||p.email)+'. Agora envie pelo WhatsApp.','ok');toast('Confirmado e ingresso enviado por e-mail.','ok');}
+        else{atualizarStatusModalEntrega(id,(r&&r.mensagem)||'E-mail não enviado. Envie pelo WhatsApp ou tente novamente.','off');toast((r&&r.mensagem)||'E-mail não enviado.','erro');}
+        agendarSync();return r;
+      }).catch(function(e){atualizarStatusModalEntrega(id,'Confirmado, mas o e-mail falhou. Você pode tentar novamente pelo cartão.','err');toast('Pessoa confirmada, mas o e-mail falhou: '+erroTexto(e),'erro');agendarSync();return null;});
+    }).catch(function(e){toast('Pessoa confirmada, mas não foi possível preparar o ingresso: '+erroTexto(e),'erro');agendarSync();});
+  }
+
+  function abrirIngresso(id){
+    var p=achar(id);if(!p||p.status!=='Confirmado'||estado.acao)return;toast('Gerando ingresso...');
+    setAcao(true);prepararIngresso(id,true).then(function(){setAcao(false);}).catch(function(e){setAcao(false);toast(erroTexto(e),'erro');});
+  }
+  window.abrirIngresso=abrirIngresso;
+
+  function abrirIngressoParaWhatsApp(id){
+    var p=achar(id);if(!p||p.status!=='Confirmado'||estado.acao)return;
+    setAcao(true);prepararIngresso(id,true).then(function(){setAcao(false);enviarIngressoWhatsAppAtual();}).catch(function(e){setAcao(false);toast(erroTexto(e),'erro');});
+  }
+  window.abrirIngressoParaWhatsApp=abrirIngressoParaWhatsApp;
+
+  function fecharIngresso(){$('modalIngresso').classList.add('hidden');ticketAtual=null;}window.fecharIngresso=fecharIngresso;
+  function baixarIngresso(){if(!ticketAtual)return;var a=document.createElement('a');a.href=ticketAtual.dataUrl;a.download=ticketAtual.dados.nomeArquivo||'Ingresso Capacitação RAFAH.png';document.body.appendChild(a);a.click();a.remove();}window.baixarIngresso=baixarIngresso;
+
+  function mensagemWhatsAppIngresso(p){
+    var primeiro=String(p.nome||'').trim().split(/\s+/)[0]||p.nome;
+    var coord=estado.coordenador&&estado.coordenador.nome?estado.coordenador.nome:'um dos coordenadores do Projeto RAFAH';
+    return 'Olá, '+primeiro+'! Aqui é o '+coord+', do Projeto RAFAH. Sua participação na Capacitação RAFAH está confirmada. Estou te enviando seu ingresso com QR Code. Apresente-o na entrada no dia da capacitação.';
+  }
+
+  async function enviarIngressoWhatsAppAtual(){
+    if(!ticketAtual)return;
+    var p=achar(ticketAtual.id);if(!p)return;
+    var msg=mensagemWhatsAppIngresso(p);
     try{
-      if('BarcodeDetector' in window&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){await iniciarNative();return;}
-    }catch(e){pararNative();}
-    try{await iniciarHtml5();}catch(e){setCamera('toque para abrir','off');mostrarBotaoCamera();$('cameraMsg').style.display='block';$('cameraMsg').innerHTML='Não foi possível abrir a câmera.<small>Permita o acesso e toque em “Abrir câmera”.</small>';}
+      var blob=await(await fetch(ticketAtual.dataUrl)).blob();
+      var file=new File([blob],ticketAtual.dados.nomeArquivo||'Ingresso Capacitação RAFAH.png',{type:'image/png'});
+      if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+        await navigator.share({title:'Ingresso RAFAH',text:msg,files:[file]});
+        marcarIngresso(ticketAtual.id,'whatsapp');
+        return;
+      }
+    }catch(e){if(e&&e.name==='AbortError')return;}
+
+    baixarIngresso();
+    var url='https://wa.me/55'+String(p.telefone||'').replace(/\D/g,'')+'?text='+encodeURIComponent(msg);
+    window.open(url,'_blank');
+    atualizarStatusModalEntrega(ticketAtual.id,'Conversa aberta. Anexe a imagem baixada e depois marque o WhatsApp como enviado.','off');
+    toast('Imagem baixada e conversa aberta. Anexe o ingresso no WhatsApp.');
+  }
+  window.enviarIngressoWhatsAppAtual=enviarIngressoWhatsAppAtual;
+
+  function marcarWhatsAppAtual(){if(ticketAtual)marcarIngresso(ticketAtual.id,'whatsapp');}
+  window.marcarWhatsAppAtual=marcarWhatsAppAtual;
+
+  async function compartilharIngresso(){return enviarIngressoWhatsAppAtual();}
+  window.compartilharIngresso=compartilharIngresso;
+
+  /* ---------- scanner de apoio local-first ---------- */
+  function interpretarQr(valor){
+    var raw=String(valor||'').trim();if(!raw)throw new Error('Código vazio.');
+    if(raw.indexOf('RAFAH|')===0){var p=raw.split('|');if(p.length!==3)throw new Error('QR Code inválido.');return{turma:p[1],codigo:String(p[2]||'').replace(/\s+/g,'').toUpperCase(),valor:raw};}
+    return{turma:estado.turma,codigo:raw.replace(/\s+/g,'').toUpperCase(),valor:raw};
   }
 
-  function pararNative(){nativeAtivo=false;nativeDetectando=false;if(nativeStream){nativeStream.getTracks().forEach(function(t){t.stop();});nativeStream=null;}var v=$('video');try{v.pause();}catch(e){}v.srcObject=null;$('reader').classList.remove('native');}
+  function scanMensagem(tipo,texto){var e=$('scanOverlay');e.className='scan-overlay '+tipo;e.textContent=texto;clearTimeout(e._t);e._t=setTimeout(function(){e.className='scan-overlay';e.textContent='';},1700);}
 
-  async function pararCamera(){
-    pararNative();if(html5Ativo&&html5Reader){try{await html5Reader.stop();}catch(e){}html5Ativo=false;}setCamera('câmera fechada','off');cameraMode='';
+  function processarCheckinLocal(valor){
+    var q;try{q=interpretarQr(valor);}catch(e){scanMensagem('err',e.message);return;}
+    if(q.turma!==estado.turma){scanMensagem('err','Ingresso de outra turma: '+formatarData(q.turma));return;}
+    var agora=Date.now(),key=q.turma+'|'+q.codigo;if(agora-Number(scannerRecentes[key]||0)<1800)return;scannerRecentes[key]=agora;
+    var p=estado.qrIndex[q.codigo];if(!p){scanMensagem('err','QR não encontrado nesta capacitação');return;}
+    if(p.presente){scanMensagem('warn','JÁ REGISTRADO — '+p.nome);$('resultadoCheckin').innerHTML='<div class="card"><div class="nome">'+escapar(p.nome)+'</div><div>Presença já registrada.</div><div class="muted">'+escapar(p.presenca||'')+'</div></div>';return;}
+
+    p.presente=true;p.presenca='agora · sincronizando';salvarCacheTurma();renderTudo();
+    scanMensagem('ok','ENTRADA REGISTRADA — '+p.nome);$('resultadoCheckin').innerHTML='<div class="card checkin-ok"><div class="nome">'+escapar(p.nome)+'</div><div>Entrada registrada no aparelho.</div><div class="muted">Sincronizando com a planilha...</div></div>';
+
+    rpc('registrarPresenca',[q.valor,q.turma]).then(function(r){p.presente=true;p.presenca=r.presenca||p.presenca;salvarCacheTurma();renderTudo();if(r.jaRegistrado)scanMensagem('warn','JÁ REGISTRADO — '+r.nome);}).catch(function(e){p.presente=false;p.presenca='';salvarCacheTurma();renderTudo();scanMensagem('err','NÃO REGISTRADO — '+erroTexto(e));});
   }
 
-  async function solicitarWakeLock(){try{if('wakeLock'in navigator&&document.visibilityState==='visible'){if(wakeLock)try{await wakeLock.release();}catch(e){}wakeLock=await navigator.wakeLock.request('screen');}}catch(e){}}
+  async function iniciarScanner(){
+    if(scannerAtivo)return;if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('Câmera indisponível. Digite o código.','erro');return;}if(!('BarcodeDetector'in window)){toast('Este navegador não oferece leitura direta de QR. Use o leitor rápido separado ou digite o código.','erro');return;}
+    try{scannerDetector=new BarcodeDetector({formats:['qr_code']});scannerStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});var v=$('videoScanner');v.srcObject=scannerStream;v.style.display='block';$('scannerPlaceholder').style.display='none';await v.play();scannerAtivo=true;requestAnimationFrame(loopScanner);}catch(e){toast('Não foi possível abrir a câmera.','erro');}
+  }
+  window.iniciarScanner=iniciarScanner;
 
-  function manual(){var v=$('codigo').value.trim();if(!v){mostrarPopup('erro','CÓDIGO AUSENTE','Nada foi registrado','Digite o código impresso no ingresso.',2200);return;}receberLeitura(v,true);}
+  function pararScanner(){scannerAtivo=false;if(scannerStream){scannerStream.getTracks().forEach(function(t){t.stop();});scannerStream=null;}var v=$('videoScanner');if(v){v.pause();v.srcObject=null;v.style.display='none';}$('scannerPlaceholder').style.display='block';}
+  window.pararScanner=pararScanner;
 
-  function restaurar(){
-    var p=carregarJson(PENDING_KEY,[]);fila=Array.isArray(p)?p.filter(function(i){return i&&i.id&&i.key&&i.valor&&i.turma;}):[];fila.forEach(function(i){i.estado='pendente';i.nextAt=Math.min(Number(i.nextAt||0),now());});
-    var h=carregarJson(HISTORY_KEY,[]);historico=Array.isArray(h)?h.slice(0,HISTORY_LIMIT):[];renderHistorico();
+  async function loopScanner(){
+    if(!scannerAtivo||!scannerDetector)return;if(scannerLoopBusy){requestAnimationFrame(loopScanner);return;}scannerLoopBusy=true;
+    try{var c=await scannerDetector.detect($('videoScanner'));if(c&&c[0]&&c[0].rawValue)processarCheckinLocal(c[0].rawValue);}catch(e){}scannerLoopBusy=false;if(scannerAtivo)requestAnimationFrame(loopScanner);
   }
 
-  function refreshAtual(forcar){var t=$('turma').value.trim();if(!turmaValida(t)){atualizarBaseStatus();return Promise.resolve(null);}return carregarOuRestaurarBase(t,!!forcar).then(function(b){atualizarBaseStatus();return b;}).catch(function(){atualizarBaseStatus();return null;});}
+  function checkinManual(){var c=$('codigoCheckin').value.trim();if(!c){toast('Digite o código do ingresso.','erro');return;}$('codigoCheckin').value='';processarCheckinLocal(c);}
+  window.checkinManual=checkinManual;
 
-  $('abrirCamera').addEventListener('click',iniciarCamera);
-  $('registrarManual').addEventListener('click',manual);
-  $('codigo').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();manual();}});
-  $('turma').addEventListener('change',function(){refreshAtual(false);});
-  $('turma').addEventListener('input',function(){clearTimeout(refreshTimer);refreshTimer=setTimeout(function(){refreshAtual(false);},500);});
-  document.addEventListener('pointerdown',desbloquearAudio,{once:true});
-  window.addEventListener('online',function(){atualizarRede();processarFila();refreshAtual(true);});
-  window.addEventListener('offline',atualizarRede);
-  window.addEventListener('beforeunload',function(){pararNative();salvarFila();});
-  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){solicitarWakeLock();processarFila();refreshAtual(false);}});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&estado.turma&&Date.now()-estado.ultimoSync>120000&&!estado.sincronizando)carregarTurma(estado.turma,false,false);});
+  window.addEventListener('online',function(){setSync('','Internet voltou. Sincronizando...');if(estado.turma)carregarTurma(estado.turma,false,false);});
+  window.addEventListener('offline',function(){setSync('off','Sem internet. O painel continua usando os dados salvos no aparelho.');});
+  window.addEventListener('beforeunload',pararScanner);
 
-  var params=new URLSearchParams(location.search);$('turma').value=params.get('turma')||DEFAULT_TURMA;
-  restaurar();atualizarRede();atualizarSync();restaurarBase($('turma').value.trim());atualizarBaseStatus();
-  refreshAtual(false).finally(function(){setTimeout(iniciarCamera,80);});
-  scheduler=setInterval(processarFila,850);
-  setInterval(function(){refreshAtual(false);},BASE_REFRESH_MS);
-  processarFila();
+  iniciar(false);
 })();
 </script>
 </body>
